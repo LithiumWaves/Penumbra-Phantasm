@@ -11,14 +11,13 @@
 
 #pp-knife-cluster {
     position: fixed;
-    right: max(8px, env(safe-area-inset-right, 0px));
-    top: 38%;
-    z-index: 9600;
+    z-index: 2147483000;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: 4px;
     touch-action: manipulation;
+    /* top/left are set from JS against visualViewport so Android/ST can't shove this off-screen */
 }
 
 #pp-knife-cluster.pp-hidden {
@@ -93,7 +92,7 @@
 .pp-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 9700;
+    z-index: 2147483001;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -258,8 +257,11 @@
 .pp-fountain-overlay {
     position: fixed;
     inset: 0;
-    z-index: 100000;
+    z-index: 2147483646;
     background: #000;
+    overflow: hidden;
+    touch-action: manipulation;
+    cursor: pointer;
 }
 
 .pp-fountain-overlay.pp-hidden {
@@ -269,12 +271,30 @@
 .pp-fountain-overlay video {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     background: #000;
+    pointer-events: none;
 }
 
 .pp-fountain-overlay audio {
     display: none;
+}
+
+.pp-skip-hint {
+    position: absolute;
+    left: 50%;
+    bottom: max(24px, env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    padding: 8px 12px;
+    border: 2px solid var(--pp-white);
+    background: rgba(0, 0, 0, 0.72);
+    color: var(--pp-yellow);
+    font-family: var(--pp-font);
+    font-size: 10px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1;
 }
 
 .penumbra-phantasm-settings small {
@@ -284,12 +304,6 @@
 }
 
 @media (max-width: 700px), (orientation: portrait) and (max-width: 900px) {
-    #pp-knife-cluster {
-        right: max(6px, env(safe-area-inset-right, 0px));
-        top: auto;
-        bottom: max(96px, calc(env(safe-area-inset-bottom, 0px) + 88px));
-    }
-
     #pp-hide-knife {
         width: 36px;
         height: 36px;
@@ -372,8 +386,9 @@
         font-size: 7px;
     }
 
-    .pp-fountain-overlay video {
-        object-fit: contain;
+    .pp-skip-hint {
+        font-size: 9px;
+        bottom: max(18px, env(safe-area-inset-bottom, 0px));
     }
 }
 

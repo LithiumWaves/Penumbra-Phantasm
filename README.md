@@ -46,5 +46,5 @@ Place these files in the extension folder (they ship with this repo):
 ## Notes
 
 - Requires a SillyTavern build that exposes `generateRaw`, `getWorldInfoNames`, `loadWorldInfo`, and `saveWorldInfo` on `SillyTavern.getContext()`.
-- The overlay stays up until **both** the video and the generation request have finished. The video plays once and holds on the last frame if generation is still running.
-- The form is laid out for narrow portrait phones (around a Galaxy S25 Ultra viewport) and tracks the visual viewport so the on-screen keyboard does not cover it.
+- The overlay stays up until **both** the video and the generation request have finished. The video plays once and holds on the last frame if generation is still running. Tap or click the overlay (or press Esc/Space/Enter) to skip the video.
+- The Toy Knife, form, and video overlay are pinned to the browser's visual viewport so they stay on-screen on phones (including Galaxy S25 Ultra portrait).

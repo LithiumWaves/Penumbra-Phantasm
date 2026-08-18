@@ -129,6 +129,7 @@ function injectUi() {
             <source src="${ASSETS.video}" type="video/webm">
         </video>
         <audio id="pp-fountain-audio" preload="auto" src="${ASSETS.sfx}"></audio>
+        <div id="pp-skip-hint" class="pp-skip-hint">TAP TO SKIP</div>
     `;
     document.body.appendChild(overlay);
 
@@ -145,18 +146,31 @@ function injectUi() {
         }
     });
     document.getElementById('pp-dialog').addEventListener('submit', onOpenFountain);
+    overlay.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        skipFountainPlayback();
+    });
     document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && !document.getElementById('pp-backdrop').classList.contains('pp-hidden')) {
+        if (event.key === 'Escape' && isDialogOpen()) {
             closeDialog();
+            return;
+        }
+        if ((event.key === 'Escape' || event.key === ' ' || event.key === 'Enter') && isOverlayOpen()) {
+            event.preventDefault();
+            skipFountainPlayback();
         }
     });
 
+    const sync = () => syncFloatingUiToViewport();
     const viewport = window.visualViewport;
     if (viewport) {
-        viewport.addEventListener('resize', syncDialogToViewport);
-        viewport.addEventListener('scroll', syncDialogToViewport);
+        viewport.addEventListener('resize', sync);
+        viewport.addEventListener('scroll', sync);
     }
-    window.addEventListener('resize', syncDialogToViewport);
+    window.addEventListener('resize', sync);
+    window.addEventListener('orientationchange', sync);
+    window.addEventListener('scroll', sync, true);
+    sync();
 }
 
 function injectSettings() {
@@ -233,30 +247,101 @@ function isDialogOpen() {
     return !document.getElementById('pp-backdrop')?.classList.contains('pp-hidden');
 }
 
-function updateKnifeVisibility() {
-    const show = isKnifeEnabled() && !isDialogOpen() && !isOverlayOpen();
-    document.getElementById('pp-knife-cluster')?.classList.toggle('pp-hidden', !show);
+function getVisibleRect() {
+    const viewport = window.visualViewport;
+    if (viewport) {
+        return {
+            top: viewport.offsetTop,
+            left: viewport.offsetLeft,
+            width: viewport.width,
+            height: viewport.height,
+        };
+    }
+    return {
+        top: window.scrollY || 0,
+        left: window.scrollX || 0,
+        width: window.innerWidth,
+        height: window.innerHeight,
+    };
 }
 
-function syncDialogToViewport() {
+function clearPinnedStyles(el) {
+    if (!el) {
+        return;
+    }
+    el.style.removeProperty('top');
+    el.style.removeProperty('left');
+    el.style.removeProperty('right');
+    el.style.removeProperty('bottom');
+    el.style.removeProperty('width');
+    el.style.removeProperty('height');
+}
+
+function pinElementToVisibleRect(el, box) {
+    if (!el) {
+        return;
+    }
+    el.style.position = 'fixed';
+    el.style.top = `${box.top}px`;
+    el.style.left = `${box.left}px`;
+    el.style.width = `${box.width}px`;
+    el.style.height = `${box.height}px`;
+    el.style.right = 'auto';
+    el.style.bottom = 'auto';
+    el.style.margin = '0';
+}
+
+function updateKnifeVisibility() {
+    const cluster = document.getElementById('pp-knife-cluster');
+    const show = isKnifeEnabled() && !isDialogOpen() && !isOverlayOpen();
+    cluster?.classList.toggle('pp-hidden', !show);
+    if (show) {
+        syncFloatingUiToViewport();
+    }
+}
+
+function syncFloatingUiToViewport() {
+    const rect = getVisibleRect();
     const backdrop = document.getElementById('pp-backdrop');
-    if (!backdrop || backdrop.classList.contains('pp-hidden')) {
-        backdrop?.style.removeProperty('top');
-        backdrop?.style.removeProperty('height');
-        backdrop?.style.removeProperty('left');
-        backdrop?.style.removeProperty('width');
-        return;
+    const overlay = document.getElementById('pp-fountain-overlay');
+    const cluster = document.getElementById('pp-knife-cluster');
+
+    if (backdrop && !backdrop.classList.contains('pp-hidden')) {
+        pinElementToVisibleRect(backdrop, rect);
+    } else {
+        clearPinnedStyles(backdrop);
     }
 
-    const viewport = window.visualViewport;
-    if (!viewport) {
-        return;
+    if (overlay && !overlay.classList.contains('pp-hidden')) {
+        pinElementToVisibleRect(overlay, rect);
+    } else {
+        clearPinnedStyles(overlay);
     }
 
-    backdrop.style.top = `${viewport.offsetTop}px`;
-    backdrop.style.left = `${viewport.offsetLeft}px`;
-    backdrop.style.width = `${viewport.width}px`;
-    backdrop.style.height = `${viewport.height}px`;
+    if (cluster && !cluster.classList.contains('pp-hidden')) {
+        const isPhone = Math.min(rect.width, rect.height) < 700 || rect.width <= 900;
+        const clusterWidth = isPhone ? 64 : 80;
+        const clusterHeight = isPhone ? 100 : 110;
+        const edge = Math.max(10, isPhone ? 12 : 16);
+        // Keep above SillyTavern's mobile send bar / browser chrome.
+        const bottomClearance = isPhone ? Math.max(120, Math.round(rect.height * 0.14)) : Math.round(rect.height * 0.35);
+        const top = rect.top + Math.max(edge, rect.height - clusterHeight - bottomClearance);
+        const left = rect.left + Math.max(edge, rect.width - clusterWidth - edge);
+        cluster.style.position = 'fixed';
+        cluster.style.top = `${top}px`;
+        cluster.style.left = `${left}px`;
+        cluster.style.right = 'auto';
+        cluster.style.bottom = 'auto';
+        cluster.style.width = `${clusterWidth}px`;
+        cluster.style.height = 'auto';
+        cluster.style.margin = '0';
+        cluster.style.transform = 'none';
+    } else {
+        clearPinnedStyles(cluster);
+        if (cluster) {
+            cluster.style.removeProperty('transform');
+        }
+    }
 }
 
 function populateLorebooks() {
@@ -307,13 +392,13 @@ function openDialog() {
     setError('');
     document.getElementById('pp-backdrop').classList.remove('pp-hidden');
     updateKnifeVisibility();
-    syncDialogToViewport();
+    syncFloatingUiToViewport();
     document.getElementById('pp-location').focus();
 }
 
 function closeDialog() {
     document.getElementById('pp-backdrop').classList.add('pp-hidden');
-    syncDialogToViewport();
+    syncFloatingUiToViewport();
     updateKnifeVisibility();
 }
 
@@ -520,24 +605,54 @@ async function saveDarkWorldEntry(lorebook, entry) {
     }
 }
 
+let activeFountainPlayback = null;
+
 function holdLastFrame(video) {
     if (!video || !Number.isFinite(video.duration) || video.duration <= 0) {
         return;
     }
     const end = Math.max(0, video.duration - 0.05);
     if (Math.abs(video.currentTime - end) > 0.02) {
-        video.currentTime = end;
+        try {
+            video.currentTime = end;
+        } catch (err) {
+            // Seeking can fail mid-load on some mobile browsers.
+        }
     }
     video.pause();
+}
+
+function skipFountainPlayback() {
+    const playback = activeFountainPlayback;
+    if (!playback || playback.skipped) {
+        return;
+    }
+    playback.skipped = true;
+    holdLastFrame(playback.video);
+    if (playback.audio) {
+        playback.audio.pause();
+    }
+    const hint = document.getElementById('pp-skip-hint');
+    if (hint) {
+        hint.textContent = 'OPENING...';
+    }
+    playback.resolveSkip?.();
 }
 
 async function playFountainOverlay() {
     const overlay = document.getElementById('pp-fountain-overlay');
     const video = document.getElementById('pp-fountain-video');
     const audio = document.getElementById('pp-fountain-audio');
+    const hint = document.getElementById('pp-skip-hint');
+
+    if (hint) {
+        hint.textContent = 'TAP TO SKIP';
+        hint.classList.remove('pp-hidden');
+    }
 
     overlay.classList.remove('pp-hidden');
     updateKnifeVisibility();
+    syncFloatingUiToViewport();
 
     video.loop = false;
     video.currentTime = 0;
@@ -545,14 +660,24 @@ async function playFountainOverlay() {
     audio.pause();
     audio.currentTime = 0;
 
-    const firstPlay = new Promise((resolve) => {
-        const finish = () => {
-            holdLastFrame(video);
-            resolve();
-        };
+    let resolveSkip;
+    const skipPromise = new Promise((resolve) => {
+        resolveSkip = resolve;
+    });
+
+    const endedPromise = new Promise((resolve) => {
+        const finish = () => resolve();
         video.addEventListener('ended', finish, { once: true });
         video.addEventListener('error', finish, { once: true });
     });
+
+    const playback = {
+        video,
+        audio,
+        skipped: false,
+        resolveSkip,
+    };
+    activeFountainPlayback = playback;
 
     let usedFallbackAudio = false;
     try {
@@ -571,32 +696,40 @@ async function playFountainOverlay() {
         } catch (mutedErr) {
             console.warn(`[${EXTENSION_NAME}] fountain video failed`, mutedErr);
             assetFailed('open_fountain.webm');
+            resolveSkip();
         }
     }
 
-    const waitForEnd = video.paused ? Promise.resolve() : firstPlay;
     const durationMs = Number.isFinite(video.duration) && video.duration > 0
         ? (video.duration * 1000) + 750
         : 35000;
 
-    return {
-        video,
-        audio,
-        usedFallbackAudio,
-        firstPlay: Promise.race([
-            waitForEnd,
-            new Promise((resolve) => setTimeout(() => {
-                holdLastFrame(video);
-                resolve();
-            }, durationMs)),
-        ]),
-    };
+    const firstPlay = Promise.race([
+        endedPromise.then(() => {
+            holdLastFrame(video);
+        }),
+        skipPromise.then(() => {
+            holdLastFrame(video);
+        }),
+        new Promise((resolve) => setTimeout(() => {
+            holdLastFrame(video);
+            resolve();
+        }, durationMs)),
+    ]);
+
+    playback.usedFallbackAudio = usedFallbackAudio;
+    playback.firstPlay = firstPlay;
+    return playback;
 }
 
 function stopFountainOverlay(playback) {
     const overlay = document.getElementById('pp-fountain-overlay');
     const video = playback?.video || document.getElementById('pp-fountain-video');
     const audio = playback?.audio || document.getElementById('pp-fountain-audio');
+
+    if (activeFountainPlayback === playback) {
+        activeFountainPlayback = null;
+    }
 
     if (video) {
         video.pause();
@@ -607,7 +740,9 @@ function stopFountainOverlay(playback) {
         audio.loop = false;
     }
     overlay?.classList.add('pp-hidden');
+    clearPinnedStyles(overlay);
     updateKnifeVisibility();
+    syncFloatingUiToViewport();
 }
 
 async function onOpenFountain(event) {
@@ -629,7 +764,7 @@ async function onOpenFountain(event) {
 
     setError('');
     document.getElementById('pp-backdrop').classList.add('pp-hidden');
-    syncDialogToViewport();
+    syncFloatingUiToViewport();
 
     const openButton = document.getElementById('pp-open');
     openButton.disabled = true;
@@ -648,6 +783,7 @@ async function onOpenFountain(event) {
     } finally {
         stopFountainOverlay(playback);
         openButton.disabled = false;
+        syncFloatingUiToViewport();
     }
 }
 
@@ -657,6 +793,7 @@ function init() {
     injectSettings();
     registerSlashCommand();
     updateKnifeVisibility();
+    syncFloatingUiToViewport();
     console.log(`[${EXTENSION_NAME}] ready`);
 }
 
