@@ -27,7 +27,9 @@ SillyTavern/public/scripts/extensions/third-party/Penumbra-Phantasm
    - **Guidelines** — optional extra direction for the model
    - **Lorebook** — which World Info book receives the entry (defaults to the chat-bound book when there is one)
 5. Click **OPEN DARK FOUNTAIN**.
-6. The fountain animation plays fullscreen while the entry is generated. When both finish, a new lorebook entry is saved.
+6. The fountain animation plays fullscreen once while the entry is generated. The last frame holds until generation finishes, then a new lorebook entry is saved.
+
+The Toy Knife can be hidden with the **X** above it. Show it again from **Extensions → Penumbra Phantasm → Show Toy Knife button**, or open the form with `/darkfountain` while it is hidden.
 
 The entry is written as encyclopedic Dark World lore: a manifestation of the Light World location, a named motif, distinct regions, and the Dark Fountain's resting place. Trigger keys include the Dark World name, the location, `Dark World`, and `Dark Fountain`.
 
@@ -44,4 +46,5 @@ Place these files in the extension folder (they ship with this repo):
 ## Notes
 
 - Requires a SillyTavern build that exposes `generateRaw`, `getWorldInfoNames`, `loadWorldInfo`, and `saveWorldInfo` on `SillyTavern.getContext()`.
-- The overlay stays up until **both** the video and the generation request have finished. If generation takes longer than one playthrough, the video loops.
+- The overlay stays up until **both** the video and the generation request have finished. The video plays once and holds on the last frame if generation is still running.
+- The form is laid out for narrow portrait phones (around a Galaxy S25 Ultra viewport) and tracks the visual viewport so the on-screen keyboard does not cover it.
