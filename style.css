@@ -75,21 +75,57 @@
 
 .pp-check {
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin: 0 0 12px;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 14px;
     color: var(--pp-white);
     font-size: 9px;
     line-height: 1.5;
     cursor: pointer;
 }
 
-.pp-check input {
-    width: 16px;
-    height: 16px;
-    margin-top: 2px;
-    flex: 0 0 auto;
+.pp-check span {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--pp-white);
+    overflow-wrap: anywhere;
+}
+
+.pp-dialog .pp-check input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    max-width: 22px;
+    margin: 0;
+    padding: 0;
+    flex: 0 0 22px;
+    border: 3px solid var(--pp-white);
+    border-radius: 0;
+    background: var(--pp-black);
+    box-shadow: none;
     accent-color: var(--pp-yellow);
+    display: inline-grid;
+    place-content: center;
+}
+
+.pp-dialog .pp-check input[type="checkbox"]::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    transform: scale(0);
+    background: var(--pp-yellow);
+    box-shadow: inset 1px 1px 0 #b8b800;
+}
+
+.pp-dialog .pp-check input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+.pp-dialog .pp-check input[type="checkbox"]:focus-visible {
+    border-color: var(--pp-yellow);
+    outline: none;
 }
 
 .pp-model-row {
