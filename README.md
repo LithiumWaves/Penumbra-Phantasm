@@ -19,22 +19,23 @@ SillyTavern/public/scripts/extensions/third-party/Penumbra-Phantasm
 
 1. Make sure at least one lorebook exists.
 2. Click the hovering **Toy Knife**.
-3. Fill in:
-   - **Dark World name** — optional; if blank, the model invents one
-   - **Fountain location** — the Light World place where the fountain is opened
-   - **Location details** — what that place is like
-   - **Guidelines** — optional extra direction for the model
-   - **Lorebook** — which World Info book receives the entry (defaults to the chat-bound book when there is one)
-4. Click **OPEN DARK FOUNTAIN**.
-5. The fountain animation plays fullscreen once while the entry is generated. Tap the overlay to skip the video. The last frame holds until generation finishes, then a new lorebook entry is saved.
+3. Choose a mode:
+   - **Create new Dark World** — invent a full entry from a Light World location
+   - **Append to existing Dark World** — add a region, NPCs, or secret area into an existing lorebook entry
+4. Fill the fields (or hit **RANDOM** to seed a surprise world and open the fountain immediately).
+5. Click **OPEN DARK FOUNTAIN** / **APPEND TO DARK WORLD**.
+6. Unless skipped in settings, the fountain animation plays once while generation runs. Tap the overlay to skip.
+
+A themed success toast appears when the Dark World is written.
 
 ### Creator UI controls
 
-- **HIDE TOY KNIFE / SHOW TOY KNIFE** — toggles the floating button from inside the creator UI. You can also restore it from **Extensions → Penumbra Phantasm**, or open the form with `/darkfountain`.
-- **SETTINGS** — customize generation:
-  - Edit the **system prompt** and **user prompt template**
-  - Enable **Use OpenRouter instead of main API**
-  - Paste an OpenRouter API key, refresh the model list, and pick or type a model id
+- **HIDE TOY KNIFE / SHOW TOY KNIFE** — toggles the floating button
+- **RANDOM** — picks a random Light World seed, clears the name, and opens a fountain so the AI invents the rest
+- **SETTINGS**
+  - Edit system/user prompts
+  - Enable OpenRouter + API key + model
+  - **Always skip fountain animation**
 
 User prompt placeholders: `{{location}}`, `{{details}}`, `{{name}}`, `{{guidelines}}`, `{{name_instruction}}`, `{{guidelines_block}}`.
 
@@ -51,4 +52,4 @@ If OpenRouter is disabled, generation uses SillyTavern's currently selected API 
 ## Notes
 
 - Requires a SillyTavern build that exposes `generateRaw`, `getWorldInfoNames`, `loadWorldInfo`, and `saveWorldInfo` on `SillyTavern.getContext()`.
-- The knife, form, and video overlay are pinned to the browser's visual viewport for phone layouts (including Galaxy S25 Ultra portrait).
+- The knife, form, video overlay, and success toast are pinned to the browser's visual viewport for phone layouts.
