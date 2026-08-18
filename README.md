@@ -17,34 +17,38 @@ SillyTavern/public/scripts/extensions/third-party/Penumbra-Phantasm
 
 ## Usage
 
-1. Connect the API you want to use (the extension calls SillyTavern's selected API via `generateRaw`).
-2. Make sure at least one lorebook exists.
-3. Click the hovering **Toy Knife** on the right side of the screen.
-4. Fill in:
+1. Make sure at least one lorebook exists.
+2. Click the hovering **Toy Knife**.
+3. Fill in:
    - **Dark World name** — optional; if blank, the model invents one
    - **Fountain location** — the Light World place where the fountain is opened
    - **Location details** — what that place is like
    - **Guidelines** — optional extra direction for the model
    - **Lorebook** — which World Info book receives the entry (defaults to the chat-bound book when there is one)
-5. Click **OPEN DARK FOUNTAIN**.
-6. The fountain animation plays fullscreen once while the entry is generated. The last frame holds until generation finishes, then a new lorebook entry is saved.
+4. Click **OPEN DARK FOUNTAIN**.
+5. The fountain animation plays fullscreen once while the entry is generated. Tap the overlay to skip the video. The last frame holds until generation finishes, then a new lorebook entry is saved.
 
-The Toy Knife can be hidden with the **X** above it. Show it again from **Extensions → Penumbra Phantasm → Show Toy Knife button**, or open the form with `/darkfountain` while it is hidden.
+### Creator UI controls
 
-The entry is written as encyclopedic Dark World lore: a manifestation of the Light World location, a named motif, distinct regions, and the Dark Fountain's resting place. Trigger keys include the Dark World name, the location, `Dark World`, and `Dark Fountain`.
+- **HIDE TOY KNIFE / SHOW TOY KNIFE** — toggles the floating button from inside the creator UI. You can also restore it from **Extensions → Penumbra Phantasm**, or open the form with `/darkfountain`.
+- **SETTINGS** — customize generation:
+  - Edit the **system prompt** and **user prompt template**
+  - Enable **Use OpenRouter instead of main API**
+  - Paste an OpenRouter API key, refresh the model list, and pick or type a model id
+
+User prompt placeholders: `{{location}}`, `{{details}}`, `{{name}}`, `{{guidelines}}`, `{{name_instruction}}`, `{{guidelines_block}}`.
+
+If OpenRouter is disabled, generation uses SillyTavern's currently selected API via `generateRaw`.
 
 ## Assets
 
-Place these files in the extension folder (they ship with this repo):
-
 | File | Role |
 | --- | --- |
-| `assets/button/Toy_Knife.png` | Hovering button on the right of the screen |
+| `assets/button/Toy_Knife.png` | Hovering button |
 | `assets/sfx/open_fountain.webm` | Fullscreen fountain animation (VP9/WebM) |
 | `assets/sfx/open_fountain.mp3` | Fallback audio if the browser blocks video sound |
 
 ## Notes
 
 - Requires a SillyTavern build that exposes `generateRaw`, `getWorldInfoNames`, `loadWorldInfo`, and `saveWorldInfo` on `SillyTavern.getContext()`.
-- The overlay stays up until **both** the video and the generation request have finished. The video plays once and holds on the last frame if generation is still running. Tap or click the overlay (or press Esc/Space/Enter) to skip the video.
-- The Toy Knife, form, and video overlay are pinned to the browser's visual viewport so they stay on-screen on phones (including Galaxy S25 Ultra portrait).
+- The knife, form, and video overlay are pinned to the browser's visual viewport for phone layouts (including Galaxy S25 Ultra portrait).

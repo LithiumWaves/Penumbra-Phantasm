@@ -1,8 +1,50 @@
 const EXTENSION_NAME = 'Penumbra Phantasm';
 const SETTINGS_KEY = 'penumbraPhantasm';
 const MODULE_URL = new URL('.', import.meta.url);
+const OPENROUTER_BASE = 'https://openrouter.ai/api/v1';
+const DEFAULT_OPENROUTER_MODEL = 'anthropic/claude-sonnet-4';
+
+const EXAMPLE_ENTRY = `The Card Kingdom is a Dark World manifestation of Hometown School's abandoned classroom, connected to the Closet Dark World via the Great Door. Its theme is that of a whimsical, dark fantasy kingdom bearing the motif of anthropomorphised cards, checkers and chess pieces. The Kingdom is divided into four distinct regions: the Field, the Forest, the Great Board, and the Castle.
+
+The Field is a sprawling expanse of twisting pathways through vibrant purple grass and towering trees with crimson leaves. It serves as the hub connecting to the Forest, Great Board, and the Great Door leading to Castle Town. The Forest is a dense maze of narrow paths blocked by thick red bushes and towering trees with blocky red leaves. The Great Board is an endless checkerboard terrain dotted with frozen pawn statues where C. Round and Ponmen wander aimlessly. The Castle is a towering black-and-white structure housing King's throne room and the Dark Fountain at its peak.`;
+
+const DEFAULT_SYSTEM_PROMPT = [
+    'You write encyclopedic World Info entries for Deltarune-inspired Dark Worlds.',
+    'A Dark World is a twisted, themed manifestation of a Light World location: objects, furniture, purpose, and atmosphere become geography, architecture, and inhabitants.',
+    'Write in third person. No dialogue. No second person. No markdown. No bullet lists. No title line besides the required fields.',
+    'The ENTRY must be 2 to 4 dense paragraphs in this shape:',
+    '1) Name the Dark World, state that it is a Dark World manifestation of the Light World location, mention notable connections if any, and declare its theme/motif.',
+    '2) State that it is divided into distinct named regions, then describe each region: visuals first, then its role (hub, maze, setpiece, castle) and any wanderers or landmarks.',
+    '3) Place the Dark Fountain in a fitting climax location, usually at a peak, heart, or throne.',
+    'Style example:',
+    EXAMPLE_ENTRY,
+    'Respond with EXACTLY this format and nothing else:',
+    'NAME: <Dark World name>',
+    'KEYS: <comma-separated trigger keywords>',
+    'ENTRY:',
+    '<the lorebook prose>',
+].join('\n');
+
+const DEFAULT_USER_PROMPT_TEMPLATE = [
+    'Light World location where the Dark Fountain is opened: {{location}}',
+    '',
+    'Details about that location:',
+    '{{details}}',
+    '',
+    '{{name_instruction}}',
+    '',
+    '{{guidelines_block}}',
+    '',
+    'Produce the NAME / KEYS / ENTRY block now.',
+].join('\n');
+
 const DEFAULT_SETTINGS = {
     showKnife: true,
+    useOpenRouter: false,
+    openRouterApiKey: '',
+    openRouterModel: DEFAULT_OPENROUTER_MODEL,
+    systemPrompt: DEFAULT_SYSTEM_PROMPT,
+    userPromptTemplate: DEFAULT_USER_PROMPT_TEMPLATE,
 };
 
 const ASSETS = {
@@ -11,9 +53,9 @@ const ASSETS = {
     sfx: new URL('assets/sfx/open_fountain.mp3', MODULE_URL).href,
 };
 
-const EXAMPLE_ENTRY = `The Card Kingdom is a Dark World manifestation of Hometown School's abandoned classroom, connected to the Closet Dark World via the Great Door. Its theme is that of a whimsical, dark fantasy kingdom bearing the motif of anthropomorphised cards, checkers and chess pieces. The Kingdom is divided into four distinct regions: the Field, the Forest, the Great Board, and the Castle.
-
-The Field is a sprawling expanse of twisting pathways through vibrant purple grass and towering trees with crimson leaves. It serves as the hub connecting to the Forest, Great Board, and the Great Door leading to Castle Town. The Forest is a dense maze of narrow paths blocked by thick red bushes and towering trees with blocky red leaves. The Great Board is an endless checkerboard terrain dotted with frozen pawn statues where C. Round and Ponmen wander aimlessly. The Castle is a towering black-and-white structure housing King's throne room and the Dark Fountain at its peak.`;
+let openRouterModelsCache = [];
+let settingsPanelOpen = false;
+let activeFountainPlayback = null;
 
 function getContext() {
     return SillyTavern.getContext();
@@ -37,10 +79,23 @@ function getSettings() {
     if (!settings[SETTINGS_KEY] || typeof settings[SETTINGS_KEY] !== 'object') {
         settings[SETTINGS_KEY] = { ...DEFAULT_SETTINGS };
     }
-    if (typeof settings[SETTINGS_KEY].showKnife !== 'boolean') {
-        settings[SETTINGS_KEY].showKnife = DEFAULT_SETTINGS.showKnife;
+
+    const stored = settings[SETTINGS_KEY];
+    for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
+        if (stored[key] === undefined || stored[key] === null) {
+            stored[key] = value;
+        }
     }
-    return settings[SETTINGS_KEY];
+    if (!String(stored.systemPrompt || '').trim()) {
+        stored.systemPrompt = DEFAULT_SYSTEM_PROMPT;
+    }
+    if (!String(stored.userPromptTemplate || '').trim()) {
+        stored.userPromptTemplate = DEFAULT_USER_PROMPT_TEMPLATE;
+    }
+    if (!String(stored.openRouterModel || '').trim()) {
+        stored.openRouterModel = DEFAULT_OPENROUTER_MODEL;
+    }
+    return stored;
 }
 
 function persistSettings() {
@@ -58,6 +113,10 @@ function setKnifeEnabled(enabled) {
     if (checkbox) {
         checkbox.checked = Boolean(enabled);
     }
+    const dialogHide = document.getElementById('pp-hide-knife');
+    if (dialogHide) {
+        dialogHide.textContent = enabled ? 'HIDE TOY KNIFE' : 'SHOW TOY KNIFE';
+    }
     updateKnifeVisibility();
 }
 
@@ -65,36 +124,83 @@ function buildDialogHtml() {
     return `
         <div id="pp-backdrop" class="pp-backdrop pp-hidden" role="dialog" aria-modal="true" aria-labelledby="pp-title">
             <form id="pp-dialog" class="pp-dialog">
-                <h2 id="pp-title" class="pp-title">OPEN A DARK FOUNTAIN</h2>
-
-                <div class="pp-field">
-                    <label for="pp-name">Dark World name <span class="pp-optional">(optional)</span></label>
-                    <input id="pp-name" name="name" type="text" maxlength="80" autocomplete="off" placeholder="Blank = AI names it">
+                <div class="pp-dialog-top">
+                    <h2 id="pp-title" class="pp-title">OPEN A DARK FOUNTAIN</h2>
+                    <div class="pp-dialog-tools">
+                        <button type="button" id="pp-settings-toggle" class="pp-btn pp-btn-compact">SETTINGS</button>
+                        <button type="button" id="pp-hide-knife" class="pp-btn pp-btn-compact">HIDE TOY KNIFE</button>
+                    </div>
                 </div>
 
-                <div class="pp-field">
-                    <label for="pp-location">Fountain location</label>
-                    <input id="pp-location" name="location" type="text" maxlength="160" required autocomplete="off" enterkeyhint="next" placeholder="Where is the fountain opened?">
+                <div id="pp-main-panel">
+                    <div class="pp-field">
+                        <label for="pp-name">Dark World name <span class="pp-optional">(optional)</span></label>
+                        <input id="pp-name" name="name" type="text" maxlength="80" autocomplete="off" placeholder="Blank = AI names it">
+                    </div>
+
+                    <div class="pp-field">
+                        <label for="pp-location">Fountain location</label>
+                        <input id="pp-location" name="location" type="text" maxlength="160" required autocomplete="off" enterkeyhint="next" placeholder="Where is the fountain opened?">
+                    </div>
+
+                    <div class="pp-field">
+                        <label for="pp-details">Location details</label>
+                        <textarea id="pp-details" name="details" required placeholder="What is this Light World place like?"></textarea>
+                    </div>
+
+                    <div class="pp-field">
+                        <label for="pp-guidelines">Guidelines <span class="pp-optional">(optional)</span></label>
+                        <textarea id="pp-guidelines" name="guidelines" placeholder="Tone, motifs, connections..."></textarea>
+                    </div>
+
+                    <div class="pp-field">
+                        <label for="pp-lorebook">Lorebook</label>
+                        <select id="pp-lorebook" name="lorebook" required></select>
+                    </div>
                 </div>
 
-                <div class="pp-field">
-                    <label for="pp-details">Location details</label>
-                    <textarea id="pp-details" name="details" required placeholder="What is this Light World place like?"></textarea>
-                </div>
+                <div id="pp-settings-panel" class="pp-settings-panel pp-hidden">
+                    <p class="pp-settings-note">Saved in extension settings. OpenRouter bypasses the main SillyTavern API connection.</p>
 
-                <div class="pp-field">
-                    <label for="pp-guidelines">Guidelines <span class="pp-optional">(optional)</span></label>
-                    <textarea id="pp-guidelines" name="guidelines" placeholder="Tone, motifs, connections..."></textarea>
-                </div>
+                    <label class="pp-check" for="pp-use-openrouter">
+                        <input id="pp-use-openrouter" type="checkbox">
+                        <span>Use OpenRouter instead of main API</span>
+                    </label>
 
-                <div class="pp-field">
-                    <label for="pp-lorebook">Lorebook</label>
-                    <select id="pp-lorebook" name="lorebook" required></select>
+                    <div class="pp-field">
+                        <label for="pp-openrouter-key">OpenRouter API key</label>
+                        <input id="pp-openrouter-key" type="password" autocomplete="off" spellcheck="false" placeholder="sk-or-...">
+                    </div>
+
+                    <div class="pp-field">
+                        <label for="pp-openrouter-model">OpenRouter model</label>
+                        <div class="pp-model-row">
+                            <select id="pp-openrouter-model"></select>
+                            <button type="button" id="pp-refresh-models" class="pp-btn pp-btn-compact">REFRESH</button>
+                        </div>
+                        <input id="pp-openrouter-model-custom" type="text" autocomplete="off" spellcheck="false" placeholder="Or type a model id, e.g. anthropic/claude-sonnet-4">
+                    </div>
+
+                    <div class="pp-field">
+                        <label for="pp-system-prompt">System prompt</label>
+                        <textarea id="pp-system-prompt" class="pp-prompt-box" spellcheck="false"></textarea>
+                    </div>
+
+                    <div class="pp-field">
+                        <label for="pp-user-prompt">User prompt template</label>
+                        <textarea id="pp-user-prompt" class="pp-prompt-box" spellcheck="false"></textarea>
+                        <small class="pp-hint">Placeholders: {{location}} {{details}} {{name}} {{guidelines}} {{name_instruction}} {{guidelines_block}}</small>
+                    </div>
+
+                    <div class="pp-actions pp-settings-actions">
+                        <button type="button" id="pp-reset-prompts" class="pp-btn">RESET PROMPTS</button>
+                        <button type="button" id="pp-settings-done" class="pp-btn pp-btn-primary">DONE</button>
+                    </div>
                 </div>
 
                 <p id="pp-error" class="pp-error" aria-live="polite"></p>
 
-                <div class="pp-actions">
+                <div id="pp-main-actions" class="pp-actions">
                     <button type="button" id="pp-cancel" class="pp-btn">CLOSE</button>
                     <button type="submit" id="pp-open" class="pp-btn pp-btn-primary">OPEN DARK FOUNTAIN</button>
                 </div>
@@ -111,7 +217,6 @@ function injectUi() {
     const cluster = document.createElement('div');
     cluster.id = 'pp-knife-cluster';
     cluster.innerHTML = `
-        <button type="button" id="pp-hide-knife" title="Hide Toy Knife" aria-label="Hide Toy Knife">X</button>
         <button type="button" id="pp-toy-knife" title="Open a Dark Fountain" aria-label="Open a Dark Fountain">
             <img src="${ASSETS.knife}" alt="">
         </button>
@@ -134,12 +239,25 @@ function injectUi() {
     document.body.appendChild(overlay);
 
     document.getElementById('pp-toy-knife').addEventListener('click', openDialog);
-    document.getElementById('pp-hide-knife').addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        hideKnife();
-    });
     document.getElementById('pp-cancel').addEventListener('click', closeDialog);
+    document.getElementById('pp-settings-toggle').addEventListener('click', () => setSettingsPanelOpen(!settingsPanelOpen));
+    document.getElementById('pp-settings-done').addEventListener('click', () => {
+        saveSettingsFromForm();
+        setSettingsPanelOpen(false);
+    });
+    document.getElementById('pp-hide-knife').addEventListener('click', toggleKnifeFromDialog);
+    document.getElementById('pp-reset-prompts').addEventListener('click', resetPrompts);
+    document.getElementById('pp-refresh-models').addEventListener('click', () => refreshOpenRouterModels(true));
+    document.getElementById('pp-use-openrouter').addEventListener('change', saveSettingsFromForm);
+    document.getElementById('pp-openrouter-key').addEventListener('change', saveSettingsFromForm);
+    document.getElementById('pp-openrouter-model').addEventListener('change', () => {
+        const select = document.getElementById('pp-openrouter-model');
+        document.getElementById('pp-openrouter-model-custom').value = select.value;
+        saveSettingsFromForm();
+    });
+    document.getElementById('pp-openrouter-model-custom').addEventListener('change', saveSettingsFromForm);
+    document.getElementById('pp-system-prompt').addEventListener('change', saveSettingsFromForm);
+    document.getElementById('pp-user-prompt').addEventListener('change', saveSettingsFromForm);
     document.getElementById('pp-backdrop').addEventListener('click', (event) => {
         if (event.target.id === 'pp-backdrop') {
             closeDialog();
@@ -152,6 +270,10 @@ function injectUi() {
     });
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && isDialogOpen()) {
+            if (settingsPanelOpen) {
+                setSettingsPanelOpen(false);
+                return;
+            }
             closeDialog();
             return;
         }
@@ -190,7 +312,7 @@ function injectSettings() {
                         <input id="pp_show_knife" type="checkbox">
                         <span>Show Toy Knife button</span>
                     </label>
-                    <small>Hide it with the X on the knife, or uncheck this. Use <code>/darkfountain</code> to open the form while it is hidden.</small>
+                    <small>You can also hide/show it from the Dark Fountain creator UI. Use <code>/darkfountain</code> to open the form while the knife is hidden. OpenRouter key, model, and prompt edits live in the creator SETTINGS panel.</small>
                 </div>
             </div>
         </div>
@@ -234,9 +356,125 @@ function registerSlashCommand() {
     }
 }
 
-function hideKnife() {
-    setKnifeEnabled(false);
-    toast('info', 'Toy Knife hidden. Re-enable it in Extensions → Penumbra Phantasm, or type /darkfountain.');
+function toggleKnifeFromDialog() {
+    const enabled = isKnifeEnabled();
+    setKnifeEnabled(!enabled);
+    if (enabled) {
+        toast('info', 'Toy Knife hidden. Re-enable it here, in Extensions → Penumbra Phantasm, or type /darkfountain.');
+        closeDialog();
+    } else {
+        toast('success', 'Toy Knife shown again.');
+    }
+}
+
+function setSettingsPanelOpen(open) {
+    settingsPanelOpen = Boolean(open);
+    document.getElementById('pp-settings-panel')?.classList.toggle('pp-hidden', !settingsPanelOpen);
+    document.getElementById('pp-main-panel')?.classList.toggle('pp-hidden', settingsPanelOpen);
+    document.getElementById('pp-main-actions')?.classList.toggle('pp-hidden', settingsPanelOpen);
+    const toggle = document.getElementById('pp-settings-toggle');
+    if (toggle) {
+        toggle.textContent = settingsPanelOpen ? 'BACK' : 'SETTINGS';
+    }
+    if (settingsPanelOpen) {
+        loadSettingsIntoForm();
+    } else {
+        saveSettingsFromForm();
+    }
+}
+
+function loadSettingsIntoForm() {
+    const settings = getSettings();
+    document.getElementById('pp-use-openrouter').checked = Boolean(settings.useOpenRouter);
+    document.getElementById('pp-openrouter-key').value = settings.openRouterApiKey || '';
+    document.getElementById('pp-system-prompt').value = settings.systemPrompt || DEFAULT_SYSTEM_PROMPT;
+    document.getElementById('pp-user-prompt').value = settings.userPromptTemplate || DEFAULT_USER_PROMPT_TEMPLATE;
+    document.getElementById('pp-openrouter-model-custom').value = settings.openRouterModel || DEFAULT_OPENROUTER_MODEL;
+    populateModelSelect(settings.openRouterModel || DEFAULT_OPENROUTER_MODEL);
+    document.getElementById('pp-hide-knife').textContent = isKnifeEnabled() ? 'HIDE TOY KNIFE' : 'SHOW TOY KNIFE';
+}
+
+function saveSettingsFromForm() {
+    const settings = getSettings();
+    settings.useOpenRouter = Boolean(document.getElementById('pp-use-openrouter')?.checked);
+    settings.openRouterApiKey = document.getElementById('pp-openrouter-key')?.value.trim() || '';
+    const customModel = document.getElementById('pp-openrouter-model-custom')?.value.trim();
+    const selectedModel = document.getElementById('pp-openrouter-model')?.value.trim();
+    settings.openRouterModel = customModel || selectedModel || DEFAULT_OPENROUTER_MODEL;
+    settings.systemPrompt = document.getElementById('pp-system-prompt')?.value || DEFAULT_SYSTEM_PROMPT;
+    settings.userPromptTemplate = document.getElementById('pp-user-prompt')?.value || DEFAULT_USER_PROMPT_TEMPLATE;
+    persistSettings();
+}
+
+function resetPrompts() {
+    document.getElementById('pp-system-prompt').value = DEFAULT_SYSTEM_PROMPT;
+    document.getElementById('pp-user-prompt').value = DEFAULT_USER_PROMPT_TEMPLATE;
+    saveSettingsFromForm();
+    toast('info', 'Prompts reset to defaults.');
+}
+
+function populateModelSelect(selectedId) {
+    const select = document.getElementById('pp-openrouter-model');
+    if (!select) {
+        return;
+    }
+
+    const models = openRouterModelsCache.length
+        ? openRouterModelsCache
+        : [{ id: selectedId || DEFAULT_OPENROUTER_MODEL, name: selectedId || DEFAULT_OPENROUTER_MODEL }];
+
+    const ids = new Set(models.map((model) => model.id));
+    if (selectedId && !ids.has(selectedId)) {
+        models.unshift({ id: selectedId, name: selectedId });
+    }
+
+    select.innerHTML = '';
+    for (const model of models) {
+        const option = document.createElement('option');
+        option.value = model.id;
+        option.textContent = model.name ? `${model.name} (${model.id})` : model.id;
+        if (model.id === selectedId) {
+            option.selected = true;
+        }
+        select.appendChild(option);
+    }
+}
+
+async function refreshOpenRouterModels(showToast = false) {
+    saveSettingsFromForm();
+    const settings = getSettings();
+    const key = settings.openRouterApiKey?.trim();
+    if (!key) {
+        toast('warning', 'Enter an OpenRouter API key first.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${OPENROUTER_BASE}/models`, {
+            headers: {
+                Authorization: `Bearer ${key}`,
+            },
+        });
+        if (!response.ok) {
+            throw new Error(`OpenRouter models request failed (${response.status})`);
+        }
+        const payload = await response.json();
+        const list = Array.isArray(payload?.data) ? payload.data : [];
+        openRouterModelsCache = list
+            .map((model) => ({
+                id: model.id,
+                name: model.name || model.id,
+            }))
+            .filter((model) => model.id)
+            .sort((a, b) => String(a.id).localeCompare(String(b.id)));
+        populateModelSelect(settings.openRouterModel || DEFAULT_OPENROUTER_MODEL);
+        if (showToast) {
+            toast('success', `Loaded ${openRouterModelsCache.length} OpenRouter models.`);
+        }
+    } catch (err) {
+        console.error(`[${EXTENSION_NAME}] failed to load OpenRouter models`, err);
+        toast('error', err?.message || 'Could not load OpenRouter models.');
+    }
 }
 
 function isOverlayOpen() {
@@ -320,10 +558,9 @@ function syncFloatingUiToViewport() {
 
     if (cluster && !cluster.classList.contains('pp-hidden')) {
         const isPhone = Math.min(rect.width, rect.height) < 700 || rect.width <= 900;
-        const clusterWidth = isPhone ? 64 : 80;
-        const clusterHeight = isPhone ? 100 : 110;
+        const clusterWidth = isPhone ? 56 : 72;
+        const clusterHeight = isPhone ? 56 : 72;
         const edge = Math.max(10, isPhone ? 12 : 16);
-        // Keep above SillyTavern's mobile send bar / browser chrome.
         const bottomClearance = isPhone ? Math.max(120, Math.round(rect.height * 0.14)) : Math.round(rect.height * 0.35);
         const top = rect.top + Math.max(edge, rect.height - clusterHeight - bottomClearance);
         const left = rect.left + Math.max(edge, rect.width - clusterWidth - edge);
@@ -390,6 +627,15 @@ function openDialog() {
     }
     populateLorebooks();
     setError('');
+    loadSettingsIntoForm();
+    settingsPanelOpen = false;
+    document.getElementById('pp-settings-panel')?.classList.add('pp-hidden');
+    document.getElementById('pp-main-panel')?.classList.remove('pp-hidden');
+    document.getElementById('pp-main-actions')?.classList.remove('pp-hidden');
+    const toggle = document.getElementById('pp-settings-toggle');
+    if (toggle) {
+        toggle.textContent = 'SETTINGS';
+    }
     document.getElementById('pp-backdrop').classList.remove('pp-hidden');
     updateKnifeVisibility();
     syncFloatingUiToViewport();
@@ -397,6 +643,17 @@ function openDialog() {
 }
 
 function closeDialog() {
+    if (settingsPanelOpen) {
+        saveSettingsFromForm();
+        settingsPanelOpen = false;
+        document.getElementById('pp-settings-panel')?.classList.add('pp-hidden');
+        document.getElementById('pp-main-panel')?.classList.remove('pp-hidden');
+        document.getElementById('pp-main-actions')?.classList.remove('pp-hidden');
+        const toggle = document.getElementById('pp-settings-toggle');
+        if (toggle) {
+            toggle.textContent = 'SETTINGS';
+        }
+    }
     document.getElementById('pp-backdrop').classList.add('pp-hidden');
     syncFloatingUiToViewport();
     updateKnifeVisibility();
@@ -412,43 +669,35 @@ function readForm() {
     };
 }
 
-function buildSystemPrompt() {
-    return [
-        'You write encyclopedic World Info entries for Deltarune-inspired Dark Worlds.',
-        'A Dark World is a twisted, themed manifestation of a Light World location: objects, furniture, purpose, and atmosphere become geography, architecture, and inhabitants.',
-        'Write in third person. No dialogue. No second person. No markdown. No bullet lists. No title line besides the required fields.',
-        'The ENTRY must be 2 to 4 dense paragraphs in this shape:',
-        '1) Name the Dark World, state that it is a Dark World manifestation of the Light World location, mention notable connections if any, and declare its theme/motif.',
-        '2) State that it is divided into distinct named regions, then describe each region: visuals first, then its role (hub, maze, setpiece, castle) and any wanderers or landmarks.',
-        '3) Place the Dark Fountain in a fitting climax location, usually at a peak, heart, or throne.',
-        'Style example:',
-        EXAMPLE_ENTRY,
-        'Respond with EXACTLY this format and nothing else:',
-        'NAME: <Dark World name>',
-        'KEYS: <comma-separated trigger keywords>',
-        'ENTRY:',
-        '<the lorebook prose>',
-    ].join('\n');
+function applyTemplate(template, values) {
+    return String(template || '').replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, key) => {
+        return Object.prototype.hasOwnProperty.call(values, key) ? String(values[key] ?? '') : '';
+    });
 }
 
-function buildUserPrompt(form) {
-    const lines = [
-        `Light World location where the Dark Fountain is opened: ${form.location}`,
-        `Details about that location:\n${form.details}`,
-    ];
+function buildPrompts(form) {
+    const settings = getSettings();
+    const nameInstruction = form.name
+        ? `Use this Dark World name exactly: ${form.name}`
+        : 'Invent a fitting Dark World name from the location\'s objects, purpose, and atmosphere.';
+    const guidelinesBlock = form.guidelines
+        ? `Additional guidelines from the user:\n${form.guidelines}`
+        : '';
 
-    if (form.name) {
-        lines.push(`Use this Dark World name exactly: ${form.name}`);
-    } else {
-        lines.push('Invent a fitting Dark World name from the location\'s objects, purpose, and atmosphere.');
-    }
+    const systemPrompt = String(settings.systemPrompt || DEFAULT_SYSTEM_PROMPT).trim() || DEFAULT_SYSTEM_PROMPT;
+    const userPrompt = applyTemplate(
+        settings.userPromptTemplate || DEFAULT_USER_PROMPT_TEMPLATE,
+        {
+            name: form.name,
+            location: form.location,
+            details: form.details,
+            guidelines: form.guidelines,
+            name_instruction: nameInstruction,
+            guidelines_block: guidelinesBlock,
+        },
+    ).replace(/\n{3,}/g, '\n\n').trim();
 
-    if (form.guidelines) {
-        lines.push(`Additional guidelines from the user:\n${form.guidelines}`);
-    }
-
-    lines.push('Produce the NAME / KEYS / ENTRY block now.');
-    return lines.join('\n\n');
+    return { systemPrompt, userPrompt };
 }
 
 function stripFences(text) {
@@ -565,16 +814,63 @@ function createWorldInfoEntry(data, { name, keys, content }) {
     return uid;
 }
 
-async function generateDarkWorld(form) {
+async function generateViaOpenRouter(systemPrompt, userPrompt) {
+    const settings = getSettings();
+    const key = settings.openRouterApiKey?.trim();
+    const model = settings.openRouterModel?.trim() || DEFAULT_OPENROUTER_MODEL;
+    if (!key) {
+        throw new Error('OpenRouter is enabled, but no API key is set.');
+    }
+
+    const response = await fetch(`${OPENROUTER_BASE}/chat/completions`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${key}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': window.location.origin || 'https://sillytavern.app',
+            'X-Title': EXTENSION_NAME,
+        },
+        body: JSON.stringify({
+            model,
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userPrompt },
+            ],
+            temperature: 0.85,
+        }),
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        const detail = payload?.error?.message || payload?.message || `HTTP ${response.status}`;
+        throw new Error(`OpenRouter request failed: ${detail}`);
+    }
+
+    const content = payload?.choices?.[0]?.message?.content;
+    if (Array.isArray(content)) {
+        return content.map((part) => part?.text || part?.content || '').join('\n').trim();
+    }
+    return String(content || '').trim();
+}
+
+async function generateViaMainApi(systemPrompt, userPrompt) {
     const context = getContext();
     if (typeof context.generateRaw !== 'function') {
         throw new Error('This SillyTavern version does not expose generateRaw.');
     }
-
-    const raw = await context.generateRaw({
-        systemPrompt: buildSystemPrompt(),
-        prompt: buildUserPrompt(form),
+    return context.generateRaw({
+        systemPrompt,
+        prompt: userPrompt,
     });
+}
+
+async function generateDarkWorld(form) {
+    saveSettingsFromForm();
+    const settings = getSettings();
+    const { systemPrompt, userPrompt } = buildPrompts(form);
+    const raw = settings.useOpenRouter
+        ? await generateViaOpenRouter(systemPrompt, userPrompt)
+        : await generateViaMainApi(systemPrompt, userPrompt);
 
     const parsed = parseGeneration(raw, form.name, form.location);
     if (!parsed.content) {
@@ -604,8 +900,6 @@ async function saveDarkWorldEntry(lorebook, entry) {
         await context.updateWorldInfoList();
     }
 }
-
-let activeFountainPlayback = null;
 
 function holdLastFrame(video) {
     if (!video || !Number.isFinite(video.duration) || video.duration <= 0) {
@@ -747,6 +1041,11 @@ function stopFountainOverlay(playback) {
 
 async function onOpenFountain(event) {
     event.preventDefault();
+    if (settingsPanelOpen) {
+        saveSettingsFromForm();
+        setSettingsPanelOpen(false);
+    }
+
     const form = readForm();
 
     if (!form.location) {
@@ -759,6 +1058,13 @@ async function onOpenFountain(event) {
     }
     if (!form.lorebook) {
         setError('Choose a lorebook.');
+        return;
+    }
+
+    const settings = getSettings();
+    if (settings.useOpenRouter && !settings.openRouterApiKey?.trim()) {
+        setError('OpenRouter is enabled. Add an API key in SETTINGS.');
+        setSettingsPanelOpen(true);
         return;
     }
 
