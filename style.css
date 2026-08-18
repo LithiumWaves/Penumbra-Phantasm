@@ -1,1 +1,236 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
+:root {
+    --pp-black: #000000;
+    --pp-white: #ffffff;
+    --pp-yellow: #ffff00;
+    --pp-gray: #c0c0c0;
+    --pp-soul: #ff4878;
+    --pp-font: 'Press Start 2P', 'Courier New', monospace;
+}
+
+#pp-toy-knife {
+    position: fixed;
+    right: 10px;
+    top: 42%;
+    z-index: 9600;
+    width: 72px;
+    height: 68px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    animation: pp-bob 2.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 6px rgba(120, 220, 255, 0.55));
+}
+
+#pp-toy-knife img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    transform-origin: center;
+}
+
+#pp-toy-knife:hover,
+#pp-toy-knife:focus-visible {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 0, 0.85));
+    outline: none;
+}
+
+#pp-toy-knife:hover img,
+#pp-toy-knife:focus-visible img {
+    transform: scale(1.12);
+}
+
+#pp-toy-knife.pp-hidden {
+    display: none;
+}
+
+@keyframes pp-bob {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+.pp-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.72);
+}
+
+.pp-backdrop.pp-hidden {
+    display: none;
+}
+
+.pp-dialog {
+    width: min(640px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    overflow: auto;
+    padding: 22px 24px 20px;
+    background: var(--pp-black);
+    color: var(--pp-white);
+    font-family: var(--pp-font);
+    font-size: 11px;
+    line-height: 1.7;
+    border: 4px solid var(--pp-white);
+    box-shadow:
+        0 0 0 4px var(--pp-black),
+        0 0 0 8px var(--pp-white);
+    image-rendering: pixelated;
+}
+
+.pp-dialog *,
+.pp-dialog *::before,
+.pp-dialog *::after {
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.pp-title {
+    margin: 0 0 18px;
+    color: var(--pp-yellow);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-align: center;
+    text-shadow: 2px 2px 0 #404000;
+}
+
+.pp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.pp-field label {
+    color: var(--pp-white);
+    font-size: 10px;
+}
+
+.pp-optional {
+    color: var(--pp-gray);
+    font-size: 8px;
+}
+
+.pp-dialog input,
+.pp-dialog textarea,
+.pp-dialog select {
+    width: 100%;
+    background: #0a0a0a;
+    color: var(--pp-white);
+    border: 3px solid var(--pp-white);
+    border-radius: 0;
+    padding: 8px 10px;
+    font-size: 10px;
+    line-height: 1.6;
+    outline: none;
+    box-shadow: inset 0 0 0 1px #303030;
+}
+
+.pp-dialog textarea {
+    min-height: 72px;
+    resize: vertical;
+}
+
+.pp-dialog input:focus,
+.pp-dialog textarea:focus,
+.pp-dialog select:focus {
+    border-color: var(--pp-yellow);
+    color: var(--pp-yellow);
+}
+
+.pp-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.pp-btn {
+    position: relative;
+    flex: 1;
+    background: var(--pp-black);
+    color: var(--pp-white);
+    border: 3px solid var(--pp-white);
+    border-radius: 0;
+    padding: 10px 8px 10px 22px;
+    font-size: 10px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.pp-btn::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    transform: translateY(-50%) rotate(45deg);
+    background: transparent;
+}
+
+.pp-btn:hover,
+.pp-btn:focus-visible {
+    color: var(--pp-yellow);
+    border-color: var(--pp-yellow);
+    outline: none;
+}
+
+.pp-btn:hover::before,
+.pp-btn:focus-visible::before {
+    background: var(--pp-soul);
+}
+
+.pp-btn-primary:hover,
+.pp-btn-primary:focus-visible {
+    color: var(--pp-yellow);
+}
+
+.pp-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.pp-error {
+    min-height: 16px;
+    margin: 0 0 10px;
+    color: var(--pp-soul);
+    font-size: 8px;
+}
+
+.pp-fountain-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    background: #000;
+}
+
+.pp-fountain-overlay.pp-hidden {
+    display: none;
+}
+
+.pp-fountain-overlay video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #000;
+}
+
+.pp-fountain-overlay audio {
+    display: none;
+}
