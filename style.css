@@ -471,10 +471,17 @@
         letter-spacing: 0;
     }
 
+    .pp-dialog-tools {
+        flex-direction: column;
+        gap: 8px;
+    }
+
     .pp-dialog-tools .pp-btn,
     .pp-btn-compact {
-        min-height: 40px;
+        min-height: 44px;
+        width: 100%;
         font-size: 8px;
+        padding: 12px 10px;
     }
 
     .pp-field {
@@ -522,12 +529,6 @@
         padding: 12px 8px 12px 24px;
         font-size: 9px;
         text-align: center;
-    }
-
-    .pp-dialog-tools .pp-btn {
-        width: auto;
-        padding-left: 10px;
-        padding-right: 10px;
     }
 
     .pp-error {
