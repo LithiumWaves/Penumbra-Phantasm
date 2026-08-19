@@ -1,1 +1,625 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
+:root {
+    --pp-black: #000000;
+    --pp-white: #ffffff;
+    --pp-yellow: #ffff00;
+    --pp-gray: #c0c0c0;
+    --pp-soul: #ff4878;
+    --pp-font: 'Press Start 2P', 'Courier New', monospace;
+}
+
+#pp-knife-cluster {
+    position: fixed;
+    z-index: 2147483000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    touch-action: manipulation;
+    /* top/left are set from JS against visualViewport so Android/ST can't shove this off-screen */
+}
+
+#pp-knife-cluster.pp-hidden {
+    display: none;
+}
+
+#pp-hide-knife,
+#pp-settings-toggle,
+.pp-btn-compact {
+    width: auto;
+    min-height: 36px;
+    padding: 8px 10px;
+    flex: 0 0 auto;
+}
+
+.pp-dialog-top {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.pp-dialog-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pp-dialog-tools .pp-btn {
+    flex: 1 1 auto;
+    text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.pp-dialog-tools .pp-btn::before {
+    display: none;
+}
+
+.pp-settings-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pp-settings-note,
+.pp-hint {
+    display: block;
+    margin: 0 0 10px;
+    color: var(--pp-gray);
+    font-size: 8px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.pp-check {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 14px;
+    color: var(--pp-white);
+    font-size: 9px;
+    line-height: 1.5;
+    cursor: pointer;
+}
+
+.pp-check span {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--pp-white);
+    overflow-wrap: anywhere;
+}
+
+.pp-dialog .pp-check input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    max-width: 22px;
+    margin: 0;
+    padding: 0;
+    flex: 0 0 22px;
+    border: 3px solid var(--pp-white);
+    border-radius: 0;
+    background: var(--pp-black);
+    box-shadow: none;
+    accent-color: var(--pp-yellow);
+    display: inline-grid;
+    place-content: center;
+}
+
+.pp-dialog .pp-check input[type="checkbox"]::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    transform: scale(0);
+    background: var(--pp-yellow);
+    box-shadow: inset 1px 1px 0 #b8b800;
+}
+
+.pp-dialog .pp-check input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+.pp-dialog .pp-check input[type="checkbox"]:focus-visible {
+    border-color: var(--pp-yellow);
+    outline: none;
+}
+
+.pp-model-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.pp-model-row select {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.pp-model-row .pp-btn {
+    flex: 0 0 auto;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.pp-model-row .pp-btn::before {
+    display: none;
+}
+
+#pp-openrouter-model-custom {
+    margin-top: 8px;
+}
+
+.pp-prompt-box {
+    min-height: 120px !important;
+    max-height: 28vh !important;
+    font-size: 9px !important;
+    line-height: 1.45 !important;
+}
+
+.pp-settings-actions {
+    margin-top: 4px;
+}
+
+#pp-main-panel.pp-hidden,
+#pp-main-actions.pp-hidden,
+#pp-settings-panel.pp-hidden,
+#pp-create-fields.pp-hidden,
+#pp-append-fields.pp-hidden,
+#pp-randomize.pp-hidden {
+    display: none;
+}
+
+.pp-main-actions {
+    flex-wrap: wrap;
+}
+
+.pp-toast {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483645;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(24px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    background: rgba(0, 0, 0, 0.35);
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.pp-toast.pp-hidden {
+    display: none;
+}
+
+.pp-toast-box {
+    width: min(520px, 100%);
+    padding: 16px 18px;
+    background: var(--pp-black);
+    color: var(--pp-white);
+    border: 4px solid var(--pp-white);
+    box-shadow:
+        0 0 0 4px var(--pp-black),
+        0 0 0 8px var(--pp-white);
+    font-family: var(--pp-font);
+}
+
+.pp-toast-title {
+    margin: 0 0 10px;
+    color: var(--pp-yellow);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.pp-toast-body {
+    color: var(--pp-white);
+    font-size: 10px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+#pp-toy-knife {
+    width: 72px;
+    height: 68px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    animation: pp-bob 2.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 6px rgba(120, 220, 255, 0.55));
+}
+
+#pp-toy-knife img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    transform-origin: center;
+}
+
+#pp-toy-knife:hover,
+#pp-toy-knife:focus-visible {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 0, 0.85));
+    outline: none;
+}
+
+#pp-toy-knife:hover img,
+#pp-toy-knife:focus-visible img {
+    transform: scale(1.12);
+}
+
+@keyframes pp-bob {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+.pp-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: max(8px, env(safe-area-inset-top, 0px)) max(8px, env(safe-area-inset-right, 0px)) max(8px, env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
+    background: rgba(0, 0, 0, 0.72);
+    box-sizing: border-box;
+}
+
+.pp-backdrop.pp-hidden {
+    display: none;
+}
+
+.pp-dialog {
+    width: min(640px, 100%);
+    max-height: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 22px 24px 20px;
+    background: var(--pp-black);
+    color: var(--pp-white);
+    font-family: var(--pp-font);
+    font-size: 11px;
+    line-height: 1.7;
+    border: 4px solid var(--pp-white);
+    box-shadow:
+        0 0 0 4px var(--pp-black),
+        0 0 0 8px var(--pp-white);
+    image-rendering: pixelated;
+}
+
+.pp-dialog *,
+.pp-dialog *::before,
+.pp-dialog *::after {
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.pp-title {
+    margin: 0;
+    color: var(--pp-yellow);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-align: center;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+    text-shadow: 2px 2px 0 #404000;
+}
+
+.pp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.pp-field label {
+    color: var(--pp-white);
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.pp-optional {
+    color: var(--pp-gray);
+    font-size: 8px;
+}
+
+.pp-dialog input,
+.pp-dialog textarea,
+.pp-dialog select {
+    width: 100%;
+    max-width: 100%;
+    background: #0a0a0a;
+    color: var(--pp-white);
+    border: 3px solid var(--pp-white);
+    border-radius: 0;
+    padding: 8px 10px;
+    font-size: 10px;
+    line-height: 1.6;
+    outline: none;
+    box-shadow: inset 0 0 0 1px #303030;
+}
+
+.pp-dialog textarea {
+    min-height: 72px;
+    max-height: 30vh;
+    resize: vertical;
+}
+
+.pp-dialog input:focus,
+.pp-dialog textarea:focus,
+.pp-dialog select:focus {
+    border-color: var(--pp-yellow);
+    color: var(--pp-yellow);
+}
+
+.pp-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.pp-btn {
+    position: relative;
+    flex: 1;
+    background: var(--pp-black);
+    color: var(--pp-white);
+    border: 3px solid var(--pp-white);
+    border-radius: 0;
+    padding: 10px 8px 10px 22px;
+    font-size: 10px;
+    line-height: 1.4;
+    cursor: pointer;
+    text-align: left;
+    touch-action: manipulation;
+    overflow-wrap: anywhere;
+}
+
+.pp-btn::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    transform: translateY(-50%) rotate(45deg);
+    background: transparent;
+}
+
+.pp-btn:hover,
+.pp-btn:focus-visible {
+    color: var(--pp-yellow);
+    border-color: var(--pp-yellow);
+    outline: none;
+}
+
+.pp-btn:hover::before,
+.pp-btn:focus-visible::before {
+    background: var(--pp-soul);
+}
+
+.pp-btn-primary:hover,
+.pp-btn-primary:focus-visible {
+    color: var(--pp-yellow);
+}
+
+.pp-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.pp-error {
+    min-height: 16px;
+    margin: 0 0 10px;
+    color: var(--pp-soul);
+    font-size: 8px;
+    overflow-wrap: anywhere;
+}
+
+.pp-fountain-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483646;
+    background: #000;
+    overflow: hidden;
+    touch-action: manipulation;
+    cursor: pointer;
+}
+
+.pp-fountain-overlay.pp-hidden {
+    display: none;
+}
+
+.pp-fountain-overlay video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+    pointer-events: none;
+}
+
+.pp-fountain-overlay audio {
+    display: none;
+}
+
+.pp-skip-hint {
+    position: absolute;
+    left: 50%;
+    bottom: max(24px, env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    padding: 8px 12px;
+    border: 2px solid var(--pp-white);
+    background: rgba(0, 0, 0, 0.72);
+    color: var(--pp-yellow);
+    font-family: var(--pp-font);
+    font-size: 10px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.penumbra-phantasm-settings small {
+    display: block;
+    margin-top: 8px;
+    opacity: 0.85;
+}
+
+@media (max-width: 700px), (orientation: portrait) and (max-width: 900px) {
+    #pp-toy-knife {
+        width: 56px;
+        height: 52px;
+    }
+
+    .pp-backdrop {
+        align-items: stretch;
+        padding: max(6px, env(safe-area-inset-top, 0px)) max(6px, env(safe-area-inset-right, 0px)) max(6px, env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px));
+    }
+
+    .pp-dialog {
+        width: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        padding: 12px 12px 14px;
+        font-size: 9px;
+        line-height: 1.55;
+        border-width: 3px;
+        box-shadow:
+            0 0 0 3px var(--pp-black),
+            0 0 0 6px var(--pp-white);
+    }
+
+    .pp-title {
+        font-size: 10px;
+        letter-spacing: 0;
+    }
+
+    .pp-dialog-tools {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .pp-dialog-tools .pp-btn,
+    .pp-btn-compact {
+        min-height: 44px;
+        width: 100%;
+        font-size: 8px;
+        padding: 12px 10px;
+    }
+
+    .pp-field {
+        gap: 5px;
+        margin-bottom: 8px;
+    }
+
+    .pp-field label {
+        font-size: 8px;
+    }
+
+    .pp-optional {
+        font-size: 7px;
+    }
+
+    .pp-dialog input,
+    .pp-dialog textarea,
+    .pp-dialog select {
+        padding: 8px;
+        font-size: 12px;
+        line-height: 1.35;
+        border-width: 2px;
+    }
+
+    .pp-dialog textarea {
+        min-height: 48px;
+        max-height: 80px;
+    }
+
+    .pp-prompt-box {
+        min-height: 90px !important;
+        max-height: 22vh !important;
+        font-size: 11px !important;
+    }
+
+    .pp-actions {
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 4px;
+    }
+
+    .pp-btn {
+        min-height: 44px;
+        width: 100%;
+        padding: 12px 8px 12px 24px;
+        font-size: 9px;
+        text-align: center;
+    }
+
+    .pp-error {
+        min-height: 12px;
+        margin: 0 0 6px;
+        font-size: 7px;
+    }
+
+    .pp-skip-hint {
+        font-size: 9px;
+        bottom: max(18px, env(safe-area-inset-bottom, 0px));
+    }
+
+    .pp-model-row {
+        flex-direction: column;
+    }
+
+    .pp-toast-box {
+        padding: 12px 14px;
+        border-width: 3px;
+        box-shadow:
+            0 0 0 3px var(--pp-black),
+            0 0 0 6px var(--pp-white);
+    }
+
+    .pp-toast-title {
+        font-size: 9px;
+    }
+
+    .pp-toast-body {
+        font-size: 8px;
+    }
+}
+
+@media (max-width: 430px) {
+    .pp-title {
+        font-size: 9px;
+    }
+
+    .pp-btn {
+        font-size: 8px;
+    }
+}
+
+@media (max-height: 700px) {
+    .pp-title {
+        margin-bottom: 8px;
+    }
+
+    .pp-field {
+        margin-bottom: 6px;
+    }
+
+    .pp-dialog textarea {
+        min-height: 40px;
+        max-height: 56px;
+    }
+}

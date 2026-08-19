@@ -1,11 +1,12 @@
 {
-  "display_name": "Penumbra Phantasm",
-  "loading_order": 100,
-  "requires": [],
-  "optional": [],
-  "js": "index.js",
-  "css": "style.css",
-  "author": "LithiumWaves",
-  "version": "1.0.0",
-  "homePage": "https://github.com/LithiumWaves/Penumbra-Phantasm"
+    "display_name": "Penumbra Phantasm",
+    "loading_order": 100,
+    "requires": [],
+    "optional": [],
+    "js": "index.js",
+    "css": "style.css",
+    "author": "LithiumWaves",
+    "version": "1.0.0",
+    "homePage": "https://github.com/LithiumWaves/Penumbra-Phantasm",
+    "auto_update": true
 }
