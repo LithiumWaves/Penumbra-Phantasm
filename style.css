@@ -65,9 +65,11 @@
 }
 
 .pp-mail-chip-placed {
-    /* left/top applied inline as % */
-    right: auto;
-    bottom: auto;
+    /* left/top set inline in px with !important */
+    right: auto !important;
+    bottom: auto !important;
+    left: 0; /* overridden inline */
+    top: 0;
 }
 
 .pp-mail-chip-dragging {
