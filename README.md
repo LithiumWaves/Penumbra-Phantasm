@@ -4,7 +4,7 @@ SillyTavern extension that recreates the Steins;Gate **Phone Trigger** loop: ope
 
 ## Features
 
-- **Phone UI** — MAIL status chip (preferred), optional FAB, Extensions menu, `/phone`
+- **Phone UI** — draggable MAIL chip, Extensions wand menu, `/phone`
 - **Handset chassis** — red / silver / black keitai styled after Okabe’s phone
 - **Mobile** — `<dialog showModal()>` top layer + scale-to-fit (S25 Ultra–safe)
 - **Mail** — inbox / outbox / read / compose; optional tap-to-reply phrases

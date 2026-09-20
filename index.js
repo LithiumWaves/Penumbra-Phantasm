@@ -9,6 +9,7 @@ import {
     refreshIfOpen,
     openInbox,
     isPhoneOpen,
+    resetMailChipPosition,
 } from './lib/phone.js';
 import {
     registerEmailTool,
@@ -29,7 +30,6 @@ function bindSettingsUi() {
     const s = getSettings();
     $('#pp_enabled').prop('checked', s.enabled);
     $('#pp_show_chip').prop('checked', s.showMailChip !== false);
-    $('#pp_show_fab').prop('checked', s.showFloatingButton);
     $('#pp_wand').prop('checked', s.showWandMenuItem);
     $('#pp_slash').prop('checked', s.enableSlashCommand);
     $('#pp_sound').prop('checked', s.soundEnabled);
@@ -46,7 +46,6 @@ function bindSettingsUi() {
     $('#pp_chat_summary_n').val(s.chatSummaryMessages ?? 12);
     $('#pp_auto_open').prop('checked', s.autoOpenOnMail);
     $('#pp_notify_toast').prop('checked', s.notifyInChat);
-    $('#pp_position').val(s.phonePosition || 'right');
     $('#pp_mail_backend').val(s.mailBackend || 'main');
     $('#pp_or_key').val(s.openRouterApiKey || '');
     $('#pp_or_model').val(s.openRouterModel || 'openai/gpt-4o-mini');
@@ -56,6 +55,7 @@ function bindSettingsUi() {
     $('#pp_mail_force_prompt').val(s.mailForcePrompt || DEFAULT_MAIL_FORCE_PROMPT);
     syncOpenRouterFields();
     syncInjectFields();
+    syncChipFields();
 }
 
 function syncOpenRouterFields() {
@@ -68,6 +68,11 @@ function syncInjectFields() {
     const injectChat = Boolean($('#pp_inject_chat_mail').prop('checked'));
     $('.pp-inject-mail-only').toggle(injectMail);
     $('.pp-chat-summary-only').toggle(injectChat);
+}
+
+function syncChipFields() {
+    const showChip = Boolean($('#pp_show_chip').prop('checked'));
+    $('.pp-chip-only').toggle(showChip);
 }
 
 function onToggle(key, selector, after) {
@@ -109,8 +114,14 @@ async function loadSettingsPanel() {
             closePhone();
         }
     });
-    onToggle('showFloatingButton', '#pp_show_fab', () => updateFabVisibility());
-    onToggle('showMailChip', '#pp_show_chip', () => updateFabVisibility());
+    onToggle('showMailChip', '#pp_show_chip', () => {
+        syncChipFields();
+        updateFabVisibility();
+    });
+    $('#pp_chip_reset').on('click', () => {
+        resetMailChipPosition();
+        toast('Chip position reset', 'info');
+    });
     onToggle('showWandMenuItem', '#pp_wand', () => updateWandItem());
     onToggle('enableSlashCommand', '#pp_slash');
     onToggle('soundEnabled', '#pp_sound');
@@ -192,13 +203,6 @@ async function loadSettingsPanel() {
     });
     onToggle('autoOpenOnMail', '#pp_auto_open');
     onToggle('notifyInChat', '#pp_notify_toast');
-
-    $('#pp_position').on('change', () => {
-        const s = getSettings();
-        s.phonePosition = String($('#pp_position').val() || 'right');
-        saveSettings();
-        updateFabVisibility();
-    });
 
     $('#pp_mail_backend').on('change', () => {
         const s = getSettings();
@@ -288,19 +292,28 @@ function updateWandItem() {
         return;
     }
 
-    const wandRoot = document.getElementById('extensionsMenu');
+    const wandRoot = document.getElementById('extensionsMenu')
+        || document.querySelector('#extensions_settings .extensions_block')
+        || document.querySelector('#rm_extensions_block .extensionsMenu');
+
     if (wandRoot) {
         const btn = document.createElement('div');
         btn.id = 'pp-wand-item';
-        btn.className = 'list-group-item flex-container flexGap5';
-        btn.title = 'Phone Trigger';
+        btn.className = 'list-group-item flex-container flexGap5 interactable';
+        btn.title = 'Open Phone Trigger';
+        btn.setAttribute('tabindex', '0');
         btn.innerHTML = `<div class="fa-solid fa-mobile-screen-button extensionsMenuExtensionButton"></div><span>Phone Trigger</span>`;
-        btn.addEventListener('click', () => openPhone());
+        const open = (ev) => {
+            ev?.preventDefault?.();
+            ev?.stopPropagation?.();
+            openPhone();
+        };
+        btn.addEventListener('click', open);
         wandRoot.appendChild(btn);
         return;
     }
 
-    console.debug(LOG, 'Extensions wand menu not found; floating button still available');
+    console.debug(LOG, 'Extensions wand menu not found yet; will retry');
 }
 
 function registerSlashCommands() {
