@@ -63,6 +63,23 @@
                 </select>
             </div>
 
+            <hr />
+            <div class="pp-settings-block">
+                <label for="pp_mail_backend"><span>Mail generation</span></label>
+                <select id="pp_mail_backend">
+                    <option value="main">Main LLM / API</option>
+                    <option value="openrouter">OpenRouter</option>
+                </select>
+            </div>
+            <div class="pp-settings-block pp-openrouter-only">
+                <label for="pp_or_key"><span>OpenRouter API key</span></label>
+                <input id="pp_or_key" type="password" class="text_pole" autocomplete="off" spellcheck="false" />
+            </div>
+            <div class="pp-settings-block pp-openrouter-only">
+                <label for="pp_or_model"><span>OpenRouter model</span></label>
+                <input id="pp_or_model" type="text" class="text_pole" placeholder="openai/gpt-4o-mini" />
+            </div>
+
             <div class="pp-settings-block">
                 <button id="pp_open_phone_btn" class="menu_button" type="button">Open phone</button>
                 <button id="pp_test_mail_btn" class="menu_button" type="button">Test mail</button>

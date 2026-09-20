@@ -33,6 +33,15 @@ function bindSettingsUi() {
     $('#pp_auto_open').prop('checked', s.autoOpenOnMail);
     $('#pp_notify_toast').prop('checked', s.notifyInChat);
     $('#pp_position').val(s.phonePosition || 'right');
+    $('#pp_mail_backend').val(s.mailBackend || 'main');
+    $('#pp_or_key').val(s.openRouterApiKey || '');
+    $('#pp_or_model').val(s.openRouterModel || 'openai/gpt-4o-mini');
+    syncOpenRouterFields();
+}
+
+function syncOpenRouterFields() {
+    const useOr = String($('#pp_mail_backend').val() || 'main') === 'openrouter';
+    $('.pp-openrouter-only').toggle(useOr);
 }
 
 function onToggle(key, selector, after) {
@@ -87,6 +96,23 @@ async function loadSettingsPanel() {
         s.phonePosition = String($('#pp_position').val() || 'right');
         saveSettings();
         updateFabVisibility();
+    });
+
+    $('#pp_mail_backend').on('change', () => {
+        const s = getSettings();
+        s.mailBackend = String($('#pp_mail_backend').val() || 'main');
+        saveSettings();
+        syncOpenRouterFields();
+    });
+    $('#pp_or_key').on('input', () => {
+        const s = getSettings();
+        s.openRouterApiKey = String($('#pp_or_key').val() || '');
+        saveSettings();
+    });
+    $('#pp_or_model').on('input', () => {
+        const s = getSettings();
+        s.openRouterModel = String($('#pp_or_model').val() || '').trim() || 'openai/gpt-4o-mini';
+        saveSettings();
     });
 
     $('#pp_open_phone_btn').on('click', () => openPhone());
