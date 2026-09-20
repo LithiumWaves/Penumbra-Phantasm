@@ -8,7 +8,7 @@ SillyTavern extension that recreates the **Steins;Gate** phone / e-mail loop: op
 
 - **Phone UI** — floating button, Extensions menu entry, `/phone`
 - **SG-001 chassis** — candy-bar styled after Okabe’s phone (camera block, chrome rails, keitai keypad)
-- **Mobile-ready** — centered overlay + scale-to-fit so the full phone stays on-screen (phones like S25 Ultra)
+- **Mobile-ready** — native `<dialog showModal()>` top layer (same S25 Ultra fix as Killer-Within’s investigator hub) + scale-to-fit so the full phone stays on-screen
 - **E-mail app** — inbox, outbox, read, compose; optional tap-to-reply phrases
 - **Customization** — built-in wallpapers or custom image URL; synth or custom notification / ringtone URLs
 - **Character → user** — `send_email` function tool, or `<email subject="…">…</email>` tags in replies

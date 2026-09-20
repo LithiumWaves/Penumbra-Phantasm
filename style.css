@@ -31,15 +31,6 @@
     left: max(var(--pp-fab-inset), env(safe-area-inset-left, 0px));
 }
 
-/* Desktop side docking still centers vertically so nothing clips */
-#pp-phone-root.pp-pos-left .pp-overlay {
-    justify-content: flex-start;
-}
-
-#pp-phone-root.pp-pos-center .pp-overlay {
-    justify-content: center;
-}
-
 .pp-fab {
     position: fixed;
     right: max(var(--pp-fab-inset), env(safe-area-inset-right, 0px));
@@ -85,26 +76,55 @@
     text-align: center;
 }
 
-/* Full-viewport overlay — ALWAYS center so tall phones don't clip on mobile */
-.pp-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9995;
-    background: rgba(4, 8, 10, 0.62);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/*
+ * Full-screen phone shell via native <dialog> top layer (same S25 Ultra fix as
+ * Killer-Within investigator hub). Escapes SillyTavern transform containing blocks
+ * that made position:fixed paint as a strip at the bottom of the screen.
+ * Do NOT apply visualViewport.offsetTop — Samsung Chrome already offsets fixed.
+ */
+#pp-overlay.pp-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
     padding:
-        max(12px, var(--pp-safe-top))
-        max(12px, env(safe-area-inset-right, 0px))
-        max(12px, var(--pp-safe-bottom))
-        max(12px, env(safe-area-inset-left, 0px));
-    box-sizing: border-box;
-    overflow: hidden;
+        max(10px, var(--pp-safe-top))
+        max(10px, env(safe-area-inset-right, 0px))
+        max(10px, var(--pp-safe-bottom))
+        max(10px, env(safe-area-inset-left, 0px)) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    background: rgba(4, 8, 10, 0.72);
+    color: var(--pp-lcd-fg);
+    font-family: var(--pp-font);
     animation: pp-fade 0.2s ease;
     overscroll-behavior: contain;
+}
+
+#pp-overlay.pp-overlay::backdrop {
+    background: rgba(4, 8, 10, 0.72);
+}
+
+#pp-overlay.pp-overlay:not([open]) {
+    display: none !important;
 }
 
 .pp-phone {
@@ -114,6 +134,8 @@
     transform-origin: center center;
     will-change: transform;
     max-width: 100%;
+    max-height: 100%;
+    flex-shrink: 0;
     animation: pp-fade 0.22s ease;
 }
 
