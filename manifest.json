@@ -1,12 +1,12 @@
 {
-  "display_name": "Penumbra Phantasm",
+  "display_name": "Phone Trigger",
   "loading_order": 100,
   "requires": [],
   "optional": [],
   "js": "index.js",
   "css": "style.css",
   "author": "LithiumWaves",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "homePage": "https://github.com/LithiumWaves/Penumbra-Phantasm",
   "auto_update": true,
   "hooks": {

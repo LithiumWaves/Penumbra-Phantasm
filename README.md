@@ -1,25 +1,21 @@
-# Penumbra Phantasm
+# Phone Trigger
 
-SillyTavern extension that recreates the **Steins;Gate** phone / e-mail loop: open a feature-phone UI, customize wallpaper and sounds, and exchange dialogue-focused e-mails with characters.
-
-> The repository name still reflects an earlier idea. The product direction is Phone Trigger–style mail, not DELTARUNE.
+SillyTavern extension that recreates the Steins;Gate **Phone Trigger** loop: open a handset UI, customize wallpaper and sounds, exchange dialogue-focused e-mail with characters.
 
 ## Features
 
-- **Phone UI** — floating button, Extensions menu entry, `/phone`
-- **SG-001 chassis** — candy-bar styled after Okabe’s phone (camera block, chrome rails, keitai keypad)
-- **Mobile-ready** — native `<dialog showModal()>` top layer (same S25 Ultra fix as Killer-Within’s investigator hub) + scale-to-fit so the full phone stays on-screen
-- **E-mail app** — inbox, outbox, read, compose; optional tap-to-reply phrases
-- **Customization** — built-in wallpapers or custom image URL; synth or custom notification / ringtone URLs
-- **Character → user** — `send_email` function tool, or `<email subject="…">…</email>` tags in replies
-- **User → character** — compose in the phone (or `/mailsend`); replies come back as e-mail, not chat prose
-- **Prompt injection** — characters are told about the phone mail system and recent threads
+- **Phone UI** — floating button, Extensions menu, `/phone`
+- **Handset chassis** — red / silver / black keitai styled after Okabe’s phone
+- **Mobile** — `<dialog showModal()>` top layer + scale-to-fit (S25 Ultra–safe)
+- **Mail** — inbox / outbox / read / compose; optional tap-to-reply phrases
+- **Wallpaper & sounds** — presets or custom URLs
+- **Character → user** — `send_email` tool or `<email subject="…">…</email>` tags
+- **User → character** — compose in-phone or `/mailsend`
 
 ## Install
 
-1. SillyTavern → **Extensions** → **Install extension**
-2. Paste this repository URL
-3. Enable **Penumbra Phantasm** and open the phone from the floating button
+1. Extensions → Install extension → this repository URL
+2. Enable **Phone Trigger**
 
 ## Commands
 
@@ -27,28 +23,18 @@ SillyTavern extension that recreates the **Steins;Gate** phone / e-mail loop: op
 |--------|--------|
 | `/phone` | Toggle phone |
 | `/mail` | Open inbox |
-| `/mailsend subject="Hi" Hello there` | Send mail (optional `reply=off`) |
+| `/mailsend subject="Hi" Hello` | Send mail (`reply=off` to skip AI reply) |
 
-## Character mail formats
+## Character mail
 
-**Function tool** (preferred when tool calling is enabled): `send_email` with `subject`, `body`, optional `replies` (`option1\|option2`).
+**Tool:** `send_email` (`subject`, `body`, optional `replies`).
 
-**Tag fallback** (stripped from the chat bubble and delivered to the inbox):
+**Tag:**
 
 ```text
-<email subject="About today" replies="Sure|Maybe later|What?">
-Are you free this evening?
+<email subject="Subject" replies="A|B|C">
+Body
 </email>
 ```
 
-## Settings
-
-Extensions panel → **Penumbra Phantasm — Phone / E-mail**: enable toggles, position, prompt injection, auto-open on mail, sound, and a test message button.
-
-In-phone **Settings** also change wallpaper and sounds per the original VN’s phone options vibe.
-
-## Notes
-
-- Mail is stored in **chat metadata** (per chat).
-- Wallpaper / sound preferences live in **extension settings** (global).
-- E-mail replies use `generateQuietPrompt` so they stay off the main prose channel.
+Mail is stored in chat metadata. Wallpaper / sounds are extension settings.
