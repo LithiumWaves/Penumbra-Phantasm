@@ -1,0 +1,83 @@
+<div class="penumbra-phantasm-settings">
+    <div class="inline-drawer">
+        <div class="inline-drawer-toggle inline-drawer-header">
+            <b>Penumbra Phantasm — Phone / E-mail</b>
+            <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+        </div>
+        <div class="inline-drawer-content">
+            <p class="pp-settings-block">
+                Steins;Gate-style phone trigger: open the phone, customize wallpaper &amp; sounds, send and receive dialogue-focused e-mails.
+            </p>
+
+            <div class="pp-settings-block">
+                <label>
+                    <input id="pp_enabled" type="checkbox" />
+                    <span>Enable phone / e-mail</span>
+                </label>
+            </div>
+            <div class="pp-settings-block">
+                <label>
+                    <input id="pp_show_fab" type="checkbox" />
+                    <span>Show floating phone button</span>
+                </label>
+            </div>
+            <div class="pp-settings-block">
+                <label>
+                    <input id="pp_wand" type="checkbox" />
+                    <span>Show Extensions menu item</span>
+                </label>
+            </div>
+            <div class="pp-settings-block">
+                <label>
+                    <input id="pp_slash" type="checkbox" />
+                    <span>Enable slash commands</span>
+                </label>
+            </div>
+            <div class="pp-settings-block">
+                <label>
+                    <input id="pp_sound" type="checkbox" />
+                    <span>Play notification / ringtone sounds</span>
+                </label>
+            </div>
+            <div class="pp-settings-block">
+                <label>
+                    <input id="pp_inject" type="checkbox" />
+                    <span>Inject e-mail system prompt for characters</span>
+                </label>
+            </div>
+            <div class="pp-settings-block">
+                <label>
+                    <input id="pp_auto_open" type="checkbox" />
+                    <span>Auto-open phone on new mail</span>
+                </label>
+            </div>
+            <div class="pp-settings-block">
+                <label>
+                    <input id="pp_notify_toast" type="checkbox" />
+                    <span>Toast notification on new mail</span>
+                </label>
+            </div>
+
+            <div class="pp-settings-block">
+                <label for="pp_position"><span>Phone position</span></label>
+                <select id="pp_position">
+                    <option value="right">Right</option>
+                    <option value="left">Left</option>
+                    <option value="center">Center</option>
+                </select>
+            </div>
+
+            <div class="pp-settings-block">
+                <button id="pp_open_phone_btn" class="menu_button" type="button">Open phone</button>
+                <button id="pp_test_mail_btn" class="menu_button" type="button">Send test mail</button>
+            </div>
+
+            <hr />
+            <p class="pp-settings-block">
+                <b>Commands:</b> <code>/phone</code> toggle · <code>/mail</code> open inbox ·
+                <code>/mailsend subject=…</code> compose from chat · characters can use <code>send_email</code> tool or
+                <code>&lt;email subject="…"&gt;…&lt;/email&gt;</code> tags.
+            </p>
+        </div>
+    </div>
+</div>
