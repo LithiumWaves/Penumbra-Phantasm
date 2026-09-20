@@ -1,4 +1,4 @@
-import { MODULE_NAME, EXTENSION_FOLDER, DEFAULT_SETTINGS, DEFAULT_MAIL_REPLY_PROMPT } from './lib/constants.js';
+import { MODULE_NAME, EXTENSION_FOLDER, DEFAULT_SETTINGS, DEFAULT_MAIL_REPLY_PROMPT, DEFAULT_MAIL_FORCE_PROMPT } from './lib/constants.js';
 import { getSettings, saveSettings, getContext, toast } from './lib/settings.js';
 import {
     initPhoneChrome,
@@ -43,6 +43,7 @@ function bindSettingsUi() {
     $('#pp_mail_delay_min').val(s.mailReplyDelayMin ?? 3);
     $('#pp_mail_delay_max').val(s.mailReplyDelayMax ?? 8);
     $('#pp_mail_reply_prompt').val(s.mailReplyPrompt || DEFAULT_MAIL_REPLY_PROMPT);
+    $('#pp_mail_force_prompt').val(s.mailForcePrompt || DEFAULT_MAIL_FORCE_PROMPT);
     syncOpenRouterFields();
     syncInjectFields();
 }
@@ -179,6 +180,20 @@ async function loadSettingsPanel() {
         $('#pp_mail_reply_prompt').val(DEFAULT_MAIL_REPLY_PROMPT);
         saveSettings();
         toast('Mail reply prompt reset', 'info');
+    });
+
+    $('#pp_mail_force_prompt').on('input', () => {
+        const s = getSettings();
+        const value = String($('#pp_mail_force_prompt').val() || '').trim();
+        s.mailForcePrompt = value || DEFAULT_MAIL_FORCE_PROMPT;
+        saveSettings();
+    });
+    $('#pp_mail_force_reset').on('click', () => {
+        const s = getSettings();
+        s.mailForcePrompt = DEFAULT_MAIL_FORCE_PROMPT;
+        $('#pp_mail_force_prompt').val(DEFAULT_MAIL_FORCE_PROMPT);
+        saveSettings();
+        toast('Forced mail prompt reset', 'info');
     });
 
     $('#pp_open_phone_btn').on('click', () => openPhone());

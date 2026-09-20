@@ -118,7 +118,20 @@
                     <code>{{description}}</code> <code>{{personality}}</code> <code>{{scenario}}</code>
                 </small>
                 <div style="margin-top:0.4em;">
-                    <button id="pp_mail_prompt_reset" class="menu_button" type="button">Reset prompt</button>
+                    <button id="pp_mail_prompt_reset" class="menu_button" type="button">Reset reply prompt</button>
+                </div>
+            </div>
+
+            <div class="pp-settings-block">
+                <label for="pp_mail_force_prompt"><span>Forced mail prompt</span></label>
+                <textarea id="pp_mail_force_prompt" class="text_pole" rows="10" spellcheck="false"></textarea>
+                <small>
+                    Used when receiving guided mail from the inbox signal control.
+                    Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{guidance}}</code>
+                    <code>{{subject}}</code> <code>{{char_card}}</code> <code>{{chat_summary}}</code>
+                </small>
+                <div style="margin-top:0.4em;">
+                    <button id="pp_mail_force_reset" class="menu_button" type="button">Reset force prompt</button>
                 </div>
             </div>
 
