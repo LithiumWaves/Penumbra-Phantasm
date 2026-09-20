@@ -20,7 +20,7 @@
     --pp-font: "IBM Plex Mono", "Consolas", "Lucida Console", monospace;
     --pp-ui: "Segoe UI", "Helvetica Neue", sans-serif;
     --pp-phone-w: 248px;
-    --pp-view-h: 168px;
+    --pp-view-h: 240px;
     --pp-safe-bottom: env(safe-area-inset-bottom, 0px);
     --pp-safe-top: env(safe-area-inset-top, 0px);
 }
@@ -222,53 +222,25 @@
     transform: rotateX(-108deg);
 }
 
-/* Silver hinge — the flip joint */
+/* Silver icon strip = the hinge (no separate barrel) */
 .pp-hinge {
     position: relative;
     z-index: 4;
-    margin: -2px 6px 0;
+    margin: -1px 4px 0;
     padding: 0;
-}
-
-.pp-hinge-barrel {
-    display: flex;
-    align-items: stretch;
-    justify-content: space-between;
-    height: 14px;
-    margin: 0 4px;
-    border-radius: 7px;
-    background:
-        linear-gradient(180deg, #eef2f6 0%, #b8c0c8 35%, #7a848e 70%, #c5ccd4 100%);
-    box-shadow:
-        inset 0 2px 3px rgba(255, 255, 255, 0.55),
-        inset 0 -2px 3px rgba(0, 0, 0, 0.28),
-        0 2px 4px rgba(0, 0, 0, 0.35);
-    overflow: hidden;
-}
-
-.pp-hinge-ridge {
-    flex: 1;
-    border-right: 1px solid rgba(0, 0, 0, 0.18);
-    border-left: 1px solid rgba(255, 255, 255, 0.25);
-    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.06), transparent);
-}
-
-.pp-hinge-ridge:last-child {
-    border-right: none;
 }
 
 .pp-shortcut-bar {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 2px;
-    margin-top: 3px;
-    padding: 5px 4px 6px;
-    border-radius: 0 0 6px 6px;
-    background: linear-gradient(180deg, #d8dee4 0%, var(--pp-silver) 45%, var(--pp-silver-dark) 100%);
+    padding: 7px 5px;
+    border-radius: 5px;
+    background: linear-gradient(180deg, #e8ecf0 0%, var(--pp-silver) 40%, var(--pp-silver-dark) 100%);
     box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.45),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.22),
-        0 2px 3px rgba(0, 0, 0, 0.2);
+        inset 0 2px 3px rgba(255, 255, 255, 0.5),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.25),
+        0 2px 4px rgba(0, 0, 0, 0.28);
 }
 
 .pp-base {
@@ -785,7 +757,7 @@
 
 @media (max-width: 600px), (max-height: 780px) {
     :root {
-        --pp-view-h: 148px;
+        --pp-view-h: 210px;
         --pp-phone-w: 232px;
     }
 
@@ -799,7 +771,7 @@
 }
 
 @media (max-height: 640px) {
-    :root { --pp-view-h: 128px; }
+    :root { --pp-view-h: 180px; }
     .pp-key { height: 24px; }
     .pp-key-kana { display: none; }
     .pp-nav-btn { height: 18px; }
@@ -808,7 +780,7 @@
 
 @media (orientation: landscape) and (max-height: 500px) {
     :root {
-        --pp-view-h: 100px;
+        --pp-view-h: 140px;
         --pp-phone-w: 210px;
     }
     .pp-key { height: 18px; }
