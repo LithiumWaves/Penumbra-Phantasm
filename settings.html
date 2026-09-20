@@ -38,16 +38,58 @@
             <div class="pp-settings-block">
                 <label>
                     <input id="pp_inject" type="checkbox" />
-                    <span>Inject mail summary into main chat prompt</span>
+                    <span>Inject mail into chat when a character speaks</span>
                 </label>
-                <small>Off by default. When on in a group chat, members can otherwise share each other's mail memory.</small>
+                <small>Loads e-mails <em>to/from that character</em> into their prompt memory for that turn.</small>
             </div>
             <div class="pp-settings-block pp-inject-mail-only">
-                <label>
-                    <input id="pp_inject_own" type="checkbox" />
-                    <span>Only inject mail for the speaking character</span>
-                </label>
-                <small>Recommended for groups — character X does not see character Y's mail.</small>
+                <label for="pp_mail_memory_scope"><span>Mail memory scope</span></label>
+                <select id="pp_mail_memory_scope">
+                    <option value="speaker">Speaking character only (to/from them)</option>
+                    <option value="all">All mail in this chat (shared)</option>
+                </select>
+            </div>
+            <div class="pp-settings-block pp-inject-mail-only">
+                <label for="pp_mail_memory_max"><span>Max mails per direction</span></label>
+                <input id="pp_mail_memory_max" type="number" class="text_pole" min="1" max="40" step="1" style="max-width:5em;" />
+            </div>
+            <div class="pp-settings-block pp-inject-mail-only">
+                <label for="pp_mail_memory_preview"><span>Body preview length</span></label>
+                <input id="pp_mail_memory_preview" type="number" class="text_pole" min="20" max="500" step="10" style="max-width:5em;" />
+            </div>
+            <div class="pp-settings-block pp-inject-mail-only">
+                <label for="pp_mail_memory_pos"><span>Prompt position / depth</span></label>
+                <div class="flex-container flexGap5" style="align-items:center;flex-wrap:wrap;">
+                    <input id="pp_mail_memory_pos" type="number" class="text_pole" min="0" max="10" step="1" style="max-width:5em;" title="ST extension prompt position" />
+                    <span>/</span>
+                    <input id="pp_mail_memory_depth" type="number" class="text_pole" min="0" max="99" step="1" style="max-width:5em;" title="ST extension prompt depth" />
+                </div>
+                <small>SillyTavern extension prompt position (usually 1 = in-chat) and depth.</small>
+            </div>
+            <div class="pp-settings-block pp-inject-mail-only">
+                <label for="pp_mail_memory_prompt"><span>Mail memory template</span></label>
+                <textarea id="pp_mail_memory_prompt" class="text_pole" rows="10" spellcheck="false"></textarea>
+                <small>
+                    Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{inbox}}</code>
+                    <code>{{outbox}}</code> <code>{{mail_list}}</code> <code>{{unread_count}}</code>
+                    <code>{{mail_count}}</code> <code>{{send_instructions}}</code>
+                </small>
+                <div style="margin-top:0.4em;">
+                    <button id="pp_mail_memory_reset" class="menu_button" type="button">Reset memory template</button>
+                </div>
+            </div>
+            <div class="pp-settings-block pp-inject-mail-only">
+                <label for="pp_mail_memory_entry"><span>Mail entry line</span></label>
+                <textarea id="pp_mail_memory_entry" class="text_pole" rows="2" spellcheck="false"></textarea>
+                <small>
+                    Per-mail line: <code>{{status}}</code> <code>{{from}}</code> <code>{{to}}</code>
+                    <code>{{subject}}</code> <code>{{preview}}</code> <code>{{body}}</code> <code>{{direction}}</code>
+                </small>
+            </div>
+            <div class="pp-settings-block pp-inject-mail-only">
+                <label for="pp_mail_memory_send"><span>Send instructions block</span></label>
+                <textarea id="pp_mail_memory_send" class="text_pole" rows="3" spellcheck="false"></textarea>
+                <small>Inserted as <code>{{send_instructions}}</code>. Leave blank to omit.</small>
             </div>
             <div class="pp-settings-block">
                 <label>

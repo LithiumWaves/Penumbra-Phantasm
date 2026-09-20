@@ -1,4 +1,4 @@
-import { MODULE_NAME, EXTENSION_FOLDER, DEFAULT_SETTINGS, DEFAULT_MAIL_REPLY_PROMPT, DEFAULT_MAIL_FORCE_PROMPT } from './lib/constants.js';
+import { MODULE_NAME, EXTENSION_FOLDER, DEFAULT_SETTINGS, DEFAULT_MAIL_REPLY_PROMPT, DEFAULT_MAIL_FORCE_PROMPT, DEFAULT_MAIL_MEMORY_PROMPT, DEFAULT_MAIL_MEMORY_ENTRY, DEFAULT_MAIL_SEND_INSTRUCTIONS } from './lib/constants.js';
 import { getSettings, saveSettings, getContext, toast } from './lib/settings.js';
 import {
     initPhoneChrome,
@@ -31,7 +31,14 @@ function bindSettingsUi() {
     $('#pp_slash').prop('checked', s.enableSlashCommand);
     $('#pp_sound').prop('checked', s.soundEnabled);
     $('#pp_inject').prop('checked', s.injectPrompt);
-    $('#pp_inject_own').prop('checked', s.injectMailOwnOnly !== false);
+    $('#pp_mail_memory_scope').val(s.mailMemoryScope === 'all' ? 'all' : 'speaker');
+    $('#pp_mail_memory_max').val(s.mailMemoryMax ?? 6);
+    $('#pp_mail_memory_preview').val(s.mailMemoryPreviewLength ?? 140);
+    $('#pp_mail_memory_pos').val(s.mailMemoryPromptPosition ?? 1);
+    $('#pp_mail_memory_depth').val(s.mailMemoryPromptDepth ?? 0);
+    $('#pp_mail_memory_prompt').val(s.mailMemoryPrompt || DEFAULT_MAIL_MEMORY_PROMPT);
+    $('#pp_mail_memory_entry').val(s.mailMemoryEntryTemplate || DEFAULT_MAIL_MEMORY_ENTRY);
+    $('#pp_mail_memory_send').val(s.mailMemorySendInstructions ?? DEFAULT_MAIL_SEND_INSTRUCTIONS);
     $('#pp_inject_chat_mail').prop('checked', s.injectChatIntoMail !== false);
     $('#pp_chat_summary_n').val(s.chatSummaryMessages ?? 12);
     $('#pp_auto_open').prop('checked', s.autoOpenOnMail);
@@ -107,7 +114,64 @@ async function loadSettingsPanel() {
         syncInjectFields();
         updateMailPrompt();
     });
-    onToggle('injectMailOwnOnly', '#pp_inject_own', () => updateMailPrompt());
+    $('#pp_mail_memory_scope').on('change', () => {
+        const s = getSettings();
+        s.mailMemoryScope = String($('#pp_mail_memory_scope').val() || 'speaker') === 'all' ? 'all' : 'speaker';
+        s.injectMailOwnOnly = s.mailMemoryScope !== 'all';
+        saveSettings();
+        updateMailPrompt();
+    });
+    const clampInt = (selector, key, min, max, fallback) => {
+        $(selector).on('change', () => {
+            const s = getSettings();
+            let n = Number($(selector).val());
+            if (!Number.isFinite(n)) {
+                n = fallback;
+            }
+            n = Math.max(min, Math.min(max, Math.floor(n)));
+            s[key] = n;
+            $(selector).val(n);
+            saveSettings();
+            updateMailPrompt();
+        });
+    };
+    clampInt('#pp_mail_memory_max', 'mailMemoryMax', 1, 40, 6);
+    clampInt('#pp_mail_memory_preview', 'mailMemoryPreviewLength', 20, 500, 140);
+    clampInt('#pp_mail_memory_pos', 'mailMemoryPromptPosition', 0, 10, 1);
+    clampInt('#pp_mail_memory_depth', 'mailMemoryPromptDepth', 0, 99, 0);
+
+    $('#pp_mail_memory_prompt').on('input', () => {
+        const s = getSettings();
+        const value = String($('#pp_mail_memory_prompt').val() || '').trim();
+        s.mailMemoryPrompt = value || DEFAULT_MAIL_MEMORY_PROMPT;
+        saveSettings();
+        updateMailPrompt();
+    });
+    $('#pp_mail_memory_entry').on('input', () => {
+        const s = getSettings();
+        const value = String($('#pp_mail_memory_entry').val() || '').trim();
+        s.mailMemoryEntryTemplate = value || DEFAULT_MAIL_MEMORY_ENTRY;
+        saveSettings();
+        updateMailPrompt();
+    });
+    $('#pp_mail_memory_send').on('input', () => {
+        const s = getSettings();
+        s.mailMemorySendInstructions = String($('#pp_mail_memory_send').val() || '');
+        saveSettings();
+        updateMailPrompt();
+    });
+    $('#pp_mail_memory_reset').on('click', () => {
+        const s = getSettings();
+        s.mailMemoryPrompt = DEFAULT_MAIL_MEMORY_PROMPT;
+        s.mailMemoryEntryTemplate = DEFAULT_MAIL_MEMORY_ENTRY;
+        s.mailMemorySendInstructions = DEFAULT_MAIL_SEND_INSTRUCTIONS;
+        $('#pp_mail_memory_prompt').val(DEFAULT_MAIL_MEMORY_PROMPT);
+        $('#pp_mail_memory_entry').val(DEFAULT_MAIL_MEMORY_ENTRY);
+        $('#pp_mail_memory_send').val(DEFAULT_MAIL_SEND_INSTRUCTIONS);
+        saveSettings();
+        updateMailPrompt();
+        toast('Mail memory templates reset', 'info');
+    });
     onToggle('injectChatIntoMail', '#pp_inject_chat_mail', () => syncInjectFields());
     $('#pp_chat_summary_n').on('change', () => {
         const s = getSettings();
@@ -366,15 +430,22 @@ function registerEvents() {
     });
 
     // Refresh per-character mail injection before a generation when possible
+    const refreshSpeakerMemory = (...args) => {
+        try {
+            const hint = args.find((a) => a && (typeof a === 'object' || typeof a === 'string')) || args[0];
+            updateMailPrompt(resolveSpeakingContact(hint));
+        } catch (err) {
+            console.debug(LOG, 'mail memory refresh failed', err);
+        }
+    };
     if (event_types.GENERATION_STARTED) {
-        eventSource.on(event_types.GENERATION_STARTED, (...args) => {
-            try {
-                const hint = args.find((a) => a && typeof a === 'object') || args[0];
-                updateMailPrompt(resolveSpeakingContact(hint));
-            } catch (err) {
-                console.debug(LOG, 'GENERATION_STARTED mail prompt refresh failed', err);
-            }
-        });
+        eventSource.on(event_types.GENERATION_STARTED, refreshSpeakerMemory);
+    }
+    if (event_types.GENERATION_AFTER_COMMANDS) {
+        eventSource.on(event_types.GENERATION_AFTER_COMMANDS, refreshSpeakerMemory);
+    }
+    if (event_types.GROUP_WRAPPER) {
+        eventSource.on(event_types.GROUP_WRAPPER, refreshSpeakerMemory);
     }
 
     // Some ST versions emit CHARACTER_MESSAGE_RENDERED after DOM paint
