@@ -16,20 +16,17 @@
                     <input id="pp_show_chip" type="checkbox" />
                     <span>Mail status chip</span>
                 </label>
-                <small>Corner MAIL strip — primary way to open the phone (recommended).</small>
+                <small>Draggable MAIL strip. Drag to reposition; uncheck to hide.</small>
             </div>
-            <div class="pp-settings-block">
-                <label>
-                    <input id="pp_show_fab" type="checkbox" />
-                    <span>Floating button</span>
-                </label>
-                <small>Optional legacy FAB. Off by default.</small>
+            <div class="pp-settings-block pp-chip-only">
+                <button id="pp_chip_reset" class="menu_button" type="button">Reset chip position</button>
             </div>
             <div class="pp-settings-block">
                 <label>
                     <input id="pp_wand" type="checkbox" />
-                    <span>Extensions menu item</span>
+                    <span>Extensions (wand) menu — Open phone</span>
                 </label>
+                <small>Adds a Phone Trigger item to the magic wand / Extensions menu.</small>
             </div>
             <div class="pp-settings-block">
                 <label>
@@ -123,15 +120,6 @@
                     <span>Mail notifications</span>
                 </label>
                 <small>Steins;Gate-styled alerts when mail arrives (tap to open inbox).</small>
-            </div>
-
-            <div class="pp-settings-block">
-                <label for="pp_position"><span>FAB position</span></label>
-                <select id="pp_position">
-                    <option value="right">Right</option>
-                    <option value="left">Left</option>
-                    <option value="center">Center</option>
-                </select>
             </div>
 
             <hr />
