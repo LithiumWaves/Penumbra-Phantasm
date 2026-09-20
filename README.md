@@ -14,6 +14,7 @@ SillyTavern extension that recreates the Steins;Gate **Phone Trigger** loop: ope
 - **Independent replies** — mail generation uses raw/OpenRouter (not the active chat turn), with a configurable delay and editable prompt template
 - **Active-chat To:** — only group members (or the solo chat character) appear in compose
 - **Context toggles** — optional chat→mail summary; optional mail→chat injection scoped per speaking character
+- **Guided receive** — faint signal bars on Inbox open a From / Guide panel to force inbound mail
 
 ## Install
 

@@ -544,6 +544,60 @@
     background: rgba(0, 0, 0, 0.25);
 }
 
+.pp-title-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.pp-title-text {
+    flex: 1;
+    min-width: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Looks like faint signal bars — discreet entry to guided receive */
+.pp-signal-hotspot {
+    flex-shrink: 0;
+    width: 18px;
+    height: 14px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background:
+        linear-gradient(#6a7a8a, #6a7a8a) 0 10px / 3px 4px no-repeat,
+        linear-gradient(#6a7a8a, #6a7a8a) 5px 7px / 3px 7px no-repeat,
+        linear-gradient(#6a7a8a, #6a7a8a) 10px 4px / 3px 10px no-repeat,
+        linear-gradient(#8a9aaa, #8a9aaa) 15px 1px / 3px 13px no-repeat;
+    opacity: 0.35;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.pp-signal-hotspot:active,
+.pp-signal-hotspot:focus-visible {
+    opacity: 0.7;
+    outline: none;
+}
+
+.pp-force-panel {
+    flex-shrink: 0;
+    padding: 6px 8px 8px;
+    border-bottom: 1px solid rgba(158, 196, 255, 0.18);
+    background: rgba(0, 8, 20, 0.55);
+}
+
+.pp-force-panel .pp-field {
+    margin-bottom: 5px;
+}
+
+.pp-force-panel .pp-btn {
+    margin-top: 2px;
+}
+
 .pp-scroll {
     overflow-y: auto;
     flex: 1;
