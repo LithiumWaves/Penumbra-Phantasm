@@ -17,15 +17,18 @@ import {
     receiveEmail,
     sendUserEmail,
     setMailReceivedHandler,
+    setMailOpenHandler,
     resolveSpeakingContact,
 } from './lib/email.js';
 import { getActiveCharacterName } from './lib/store.js';
+import { ensureNotifyHost } from './lib/notify.js';
 
 const LOG = `[${MODULE_NAME}]`;
 
 function bindSettingsUi() {
     const s = getSettings();
     $('#pp_enabled').prop('checked', s.enabled);
+    $('#pp_show_chip').prop('checked', s.showMailChip !== false);
     $('#pp_show_fab').prop('checked', s.showFloatingButton);
     $('#pp_wand').prop('checked', s.showWandMenuItem);
     $('#pp_slash').prop('checked', s.enableSlashCommand);
@@ -107,6 +110,7 @@ async function loadSettingsPanel() {
         }
     });
     onToggle('showFloatingButton', '#pp_show_fab', () => updateFabVisibility());
+    onToggle('showMailChip', '#pp_show_chip', () => updateFabVisibility());
     onToggle('showWandMenuItem', '#pp_wand', () => updateWandItem());
     onToggle('enableSlashCommand', '#pp_slash');
     onToggle('soundEnabled', '#pp_sound');
@@ -454,8 +458,11 @@ function registerEvents() {
     }
 }
 
+setMailOpenHandler(() => openInbox());
+
 setMailReceivedHandler((email) => {
     refreshIfOpen();
+    updateFabVisibility();
     const s = getSettings();
     if (s.autoOpenOnMail) {
         openPhone('inbox');
@@ -471,6 +478,7 @@ jQuery(async () => {
         ...getSettings(),
     });
 
+    ensureNotifyHost();
     await loadSettingsPanel();
     initPhoneChrome();
     updateFabVisibility();
