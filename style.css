@@ -32,8 +32,6 @@
 /* Corner MAIL chip — primary open affordance (draggable) */
 .pp-mail-chip {
     position: fixed;
-    top: max(12px, env(safe-area-inset-top, 0px));
-    right: max(12px, env(safe-area-inset-right, 0px));
     z-index: 9991;
     display: inline-flex;
     align-items: center;
@@ -58,8 +56,18 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+/* Default dock — only when not user-placed */
+.pp-mail-chip:not(.pp-mail-chip-placed) {
+    top: max(12px, env(safe-area-inset-top, 0px));
+    right: max(12px, env(safe-area-inset-right, 0px));
+    left: auto;
+    bottom: auto;
+}
+
 .pp-mail-chip-placed {
+    /* left/top applied inline as % */
     right: auto;
+    bottom: auto;
 }
 
 .pp-mail-chip-dragging {
@@ -964,11 +972,6 @@
     :root {
         --pp-view-h: 210px;
         --pp-phone-w: 232px;
-    }
-
-    .pp-fab {
-        bottom: calc(72px + var(--pp-safe-bottom));
-        right: max(12px, env(safe-area-inset-right, 0px));
     }
 
     .pp-key { height: 28px; }
