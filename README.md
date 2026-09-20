@@ -8,7 +8,7 @@ SillyTavern extension that recreates the Steins;Gate **Phone Trigger** loop: ope
 - **Handset chassis** — red / silver / black keitai styled after Okabe’s phone
 - **Mobile** — `<dialog showModal()>` top layer + scale-to-fit (S25 Ultra–safe)
 - **Mail** — inbox / outbox / read / compose; optional tap-to-reply phrases
-- **D-Mail** — permanent contact **PhoneWave (name subject to change)**; send plays `assets/divmeter.mp4` (end distortion), records the mail, and injects a quiet worldline fact into chat (no AI reply)
+- **D-Mail** — permanent contact **PhoneWave (name subject to change)**; send plays `lib/vid/divmeter.mp4` (end distortion), records the mail, and injects a quiet worldline fact into chat (no AI reply)
 - **Notifications** — Steins;Gate-styled mail alerts + chip unread badge
 - **Send animation** — compose shows an e-mail-client send sequence
 - **Wallpaper & sounds** — presets or custom URLs
@@ -23,7 +23,7 @@ SillyTavern extension that recreates the Steins;Gate **Phone Trigger** loop: ope
 
 1. Extensions → Install extension → this repository URL
 2. Enable **Phone Trigger**
-3. (Optional) Drop your divergence clip at `assets/divmeter.mp4` inside the installed extension folder
+3. Divergence clip lives at `lib/vid/divmeter.mp4` (already in-repo); `assets/divmeter.mp4` works as a fallback path
 
 ## Commands
 
