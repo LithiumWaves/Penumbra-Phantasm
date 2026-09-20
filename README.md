@@ -11,6 +11,7 @@ SillyTavern extension that recreates the Steins;Gate **Phone Trigger** loop: ope
 - **Wallpaper & sounds** — presets or custom URLs
 - **Character → user** — `send_email` tool or `<email subject="…">…</email>` tags
 - **User → character** — compose in-phone or `/mailsend`
+- **Independent replies** — mail generation uses raw/OpenRouter (not the active chat turn), with a configurable delay and editable prompt template
 
 ## Install
 
@@ -37,4 +38,6 @@ Body
 </email>
 ```
 
-Mail is stored in chat metadata. Wallpaper / sounds are extension settings.
+Mail replies are generated independently of the main chat character (To: contact card + editable prompt). A short delay (default 3–8s) runs before the reply arrives. Optional “Inject mail prompt” keeps mail out of the main chat context by default.
+
+Mail is stored in chat metadata. Wallpaper / sounds / reply prompt are extension settings.

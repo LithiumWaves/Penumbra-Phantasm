@@ -1,4 +1,4 @@
-import { MODULE_NAME, EXTENSION_FOLDER, DEFAULT_SETTINGS } from './lib/constants.js';
+import { MODULE_NAME, EXTENSION_FOLDER, DEFAULT_SETTINGS, DEFAULT_MAIL_REPLY_PROMPT } from './lib/constants.js';
 import { getSettings, saveSettings, getContext, toast } from './lib/settings.js';
 import {
     initPhoneChrome,
@@ -36,6 +36,9 @@ function bindSettingsUi() {
     $('#pp_mail_backend').val(s.mailBackend || 'main');
     $('#pp_or_key').val(s.openRouterApiKey || '');
     $('#pp_or_model').val(s.openRouterModel || 'openai/gpt-4o-mini');
+    $('#pp_mail_delay_min').val(s.mailReplyDelayMin ?? 3);
+    $('#pp_mail_delay_max').val(s.mailReplyDelayMax ?? 8);
+    $('#pp_mail_reply_prompt').val(s.mailReplyPrompt || DEFAULT_MAIL_REPLY_PROMPT);
     syncOpenRouterFields();
 }
 
@@ -113,6 +116,39 @@ async function loadSettingsPanel() {
         const s = getSettings();
         s.openRouterModel = String($('#pp_or_model').val() || '').trim() || 'openai/gpt-4o-mini';
         saveSettings();
+    });
+
+    const clampDelay = () => {
+        const s = getSettings();
+        let min = Number($('#pp_mail_delay_min').val());
+        let max = Number($('#pp_mail_delay_max').val());
+        if (!Number.isFinite(min) || min < 0) {
+            min = 0;
+        }
+        if (!Number.isFinite(max) || max < min) {
+            max = min;
+        }
+        s.mailReplyDelayMin = min;
+        s.mailReplyDelayMax = max;
+        $('#pp_mail_delay_min').val(min);
+        $('#pp_mail_delay_max').val(max);
+        saveSettings();
+    };
+    $('#pp_mail_delay_min').on('change', clampDelay);
+    $('#pp_mail_delay_max').on('change', clampDelay);
+
+    $('#pp_mail_reply_prompt').on('input', () => {
+        const s = getSettings();
+        const value = String($('#pp_mail_reply_prompt').val() || '').trim();
+        s.mailReplyPrompt = value || DEFAULT_MAIL_REPLY_PROMPT;
+        saveSettings();
+    });
+    $('#pp_mail_prompt_reset').on('click', () => {
+        const s = getSettings();
+        s.mailReplyPrompt = DEFAULT_MAIL_REPLY_PROMPT;
+        $('#pp_mail_reply_prompt').val(DEFAULT_MAIL_REPLY_PROMPT);
+        saveSettings();
+        toast('Mail reply prompt reset', 'info');
     });
 
     $('#pp_open_phone_btn').on('click', () => openPhone());
@@ -251,7 +287,7 @@ function registerSlashCommands() {
                 isRequired: true,
             }),
         ],
-        helpString: 'Send an e-mail from your phone to the current character and optionally request a reply.',
+        helpString: 'Send an e-mail from your phone (To defaults to active contact). AI reply is scheduled independently after a short delay.',
     }));
 }
 
