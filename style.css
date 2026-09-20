@@ -100,7 +100,7 @@
     border: 0 !important;
     border-radius: 0 !important;
     box-sizing: border-box !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -123,15 +123,23 @@
     display: none !important;
 }
 
-.pp-phone {
+.pp-scale-wrap {
     position: relative;
     --pp-scale: 1;
     transform: scale(var(--pp-scale));
     transform-origin: center center;
+    transform-style: preserve-3d;
     will-change: transform;
     max-width: 100%;
     max-height: 100%;
     flex-shrink: 0;
+}
+
+.pp-phone {
+    position: relative;
+    transform-style: preserve-3d;
+    max-width: 100%;
+    max-height: 100%;
     animation: pp-fade 0.22s ease;
 }
 
@@ -157,8 +165,9 @@
 .pp-chassis {
     position: relative;
     width: var(--pp-phone-w);
-    perspective: 1400px;
-    perspective-origin: 50% 40%;
+    perspective: 1600px;
+    perspective-origin: 50% 35%;
+    transform-style: preserve-3d;
     border-radius: 14px 14px 18px 18px;
     padding: 0;
     background: transparent;
@@ -173,10 +182,10 @@
 
 .pp-lid {
     position: relative;
-    z-index: 3;
+    z-index: 5;
     transform-origin: center bottom;
     transform-style: preserve-3d;
-    transition: transform 0.56s cubic-bezier(0.22, 0.9, 0.28, 1);
+    transition: transform 0.62s cubic-bezier(0.33, 0.1, 0.25, 1);
     will-change: transform;
 }
 
@@ -199,35 +208,36 @@
     border-radius: 14px 14px 8px 8px;
     background:
         linear-gradient(180deg, #6a1014 0%, #4a0a0c 100%);
-    transform: rotateX(180deg);
+    transform: rotateX(180deg) translateZ(1px);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
 }
 
-/* Closed: lid folded over the keypad */
+/* Closed: lid folds over keypad — translateZ keeps it from sinking into the base mid-swing */
 .pp-flip.is-closed .pp-lid {
-    transform: rotateX(-108deg);
+    transform: translateZ(20px) rotateX(-158deg);
 }
 
 .pp-flip.is-opening .pp-lid {
-    transform: rotateX(0deg);
+    transform: translateZ(0) rotateX(0deg);
 }
 
 .pp-flip.is-open .pp-lid {
-    transform: rotateX(0deg);
+    transform: translateZ(0) rotateX(0deg);
 }
 
 .pp-flip.is-closing .pp-lid {
-    transform: rotateX(-108deg);
+    transform: translateZ(20px) rotateX(-158deg);
 }
 
-/* Silver icon strip = the hinge (no separate barrel) */
+/* Silver icon strip = the hinge */
 .pp-hinge {
     position: relative;
     z-index: 4;
     margin: -1px 4px 0;
     padding: 0;
+    transform-style: preserve-3d;
 }
 
 .pp-shortcut-bar {
@@ -246,6 +256,7 @@
 .pp-base {
     position: relative;
     z-index: 2;
+    transform: translateZ(0);
     background: linear-gradient(180deg, var(--pp-red) 0%, var(--pp-red-deep) 100%);
     border-radius: 8px 8px 18px 18px;
     padding: 6px 10px 10px;
@@ -697,7 +708,8 @@
 }
 
 .pp-field input,
-.pp-field textarea {
+.pp-field textarea,
+.pp-field select {
     width: 100%;
     margin-top: 3px;
     padding: 8px;
@@ -711,8 +723,13 @@
 }
 
 .pp-field input:focus,
-.pp-field textarea:focus {
+.pp-field textarea:focus,
+.pp-field select:focus {
     outline: 1px solid var(--pp-accent);
+}
+
+.pp-field select {
+    appearance: auto;
 }
 
 .pp-section {
