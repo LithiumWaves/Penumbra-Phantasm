@@ -40,14 +40,15 @@
                     <input id="pp_inject" type="checkbox" />
                     <span>Inject mail into chat when a character speaks</span>
                 </label>
-                <small>Loads e-mails <em>to/from that character</em> into their prompt memory for that turn.</small>
+                <small>Loads selected e-mails for that character (phone Mail → Memory). Default auto = to/from them.</small>
             </div>
             <div class="pp-settings-block pp-inject-mail-only">
-                <label for="pp_mail_memory_scope"><span>Mail memory scope</span></label>
+                <label for="pp_mail_memory_scope"><span>Auto memory fallback</span></label>
                 <select id="pp_mail_memory_scope">
-                    <option value="speaker">Speaking character only (to/from them)</option>
-                    <option value="all">All mail in this chat (shared)</option>
+                    <option value="speaker">Speaking character to/from</option>
+                    <option value="all">All mail in this chat</option>
                 </select>
+                <small>Used when a character is still on Auto. Manual picks on the phone override this.</small>
             </div>
             <div class="pp-settings-block pp-inject-mail-only">
                 <label for="pp_mail_memory_max"><span>Max mails per direction</span></label>
