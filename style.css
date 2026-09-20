@@ -597,11 +597,102 @@
     margin-top: 2px;
 }
 
-.pp-force-panel textarea {
-    max-height: 72px;
-    overflow-y: auto;
-    resize: none;
-    touch-action: pan-y;
+.pp-memory-toolbar {
+    flex-shrink: 0;
+    padding: 6px 8px 4px;
+    border-bottom: 1px solid rgba(158, 196, 255, 0.18);
+    background: rgba(0, 8, 20, 0.55);
+}
+
+.pp-memory-char {
+    margin-bottom: 4px;
+}
+
+.pp-memory-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 4px;
+    font: 500 9px/1.2 var(--pp-font);
+    color: var(--pp-lcd-dim);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.pp-memory-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 2px;
+}
+
+.pp-chip-btn {
+    appearance: none;
+    border: 1px solid rgba(158, 196, 255, 0.28);
+    background: rgba(158, 196, 255, 0.08);
+    color: var(--pp-lcd-fg);
+    font: 600 9px/1 var(--pp-font);
+    padding: 5px 7px;
+    border-radius: 2px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.pp-chip-btn:active {
+    background: rgba(158, 196, 255, 0.2);
+}
+
+.pp-memory-list {
+    padding-top: 2px;
+}
+
+.pp-memory-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(158, 196, 255, 0.12);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.pp-memory-row.pp-memory-on {
+    background: rgba(158, 196, 255, 0.1);
+}
+
+.pp-memory-row.pp-memory-extra {
+    opacity: 0.72;
+}
+
+.pp-memory-check {
+    margin-top: 2px;
+    flex-shrink: 0;
+    accent-color: var(--pp-accent);
+}
+
+.pp-memory-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.pp-memory-line {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    width: 100%;
+    font-size: 10px;
+}
+
+.pp-memory-dir {
+    color: var(--pp-accent);
+    font-weight: 700;
+    width: 10px;
+    flex-shrink: 0;
 }
 
 .pp-scroll {
