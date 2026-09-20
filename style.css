@@ -153,20 +153,136 @@
     touch-action: manipulation;
 }
 
-/* —— Red keitai chassis —— */
+/* —— Red keitai chassis with flip hinge —— */
 .pp-chassis {
     position: relative;
     width: var(--pp-phone-w);
-    background: linear-gradient(180deg, var(--pp-red-bright) 0%, var(--pp-red) 35%, var(--pp-red-deep) 100%);
+    perspective: 1400px;
+    perspective-origin: 50% 40%;
     border-radius: 14px 14px 18px 18px;
-    padding: 6px 10px 10px;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+}
+
+.pp-flip {
+    position: relative;
+    transform-style: preserve-3d;
+}
+
+.pp-lid {
+    position: relative;
+    z-index: 3;
+    transform-origin: center bottom;
+    transform-style: preserve-3d;
+    transition: transform 0.56s cubic-bezier(0.22, 0.9, 0.28, 1);
+    will-change: transform;
+}
+
+.pp-lid-face {
+    position: relative;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: linear-gradient(180deg, var(--pp-red-bright) 0%, var(--pp-red) 55%, var(--pp-red-deep) 100%);
+    border-radius: 14px 14px 8px 8px;
+    padding: 6px 10px 8px;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.28),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.25),
-        0 18px 40px rgba(0, 0, 0, 0.55),
+        0 4px 10px rgba(0, 0, 0, 0.25),
         0 0 0 1px var(--pp-red-edge);
+}
+
+.pp-lid-back {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px 14px 8px 8px;
+    background:
+        linear-gradient(180deg, #6a1014 0%, #4a0a0c 100%);
+    transform: rotateX(180deg);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+/* Closed: lid folded over the keypad */
+.pp-flip.is-closed .pp-lid {
+    transform: rotateX(-108deg);
+}
+
+.pp-flip.is-opening .pp-lid {
+    transform: rotateX(0deg);
+}
+
+.pp-flip.is-open .pp-lid {
+    transform: rotateX(0deg);
+}
+
+.pp-flip.is-closing .pp-lid {
+    transform: rotateX(-108deg);
+}
+
+/* Silver hinge — the flip joint */
+.pp-hinge {
+    position: relative;
+    z-index: 4;
+    margin: -2px 6px 0;
+    padding: 0;
+}
+
+.pp-hinge-barrel {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    height: 14px;
+    margin: 0 4px;
+    border-radius: 7px;
+    background:
+        linear-gradient(180deg, #eef2f6 0%, #b8c0c8 35%, #7a848e 70%, #c5ccd4 100%);
+    box-shadow:
+        inset 0 2px 3px rgba(255, 255, 255, 0.55),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.28),
+        0 2px 4px rgba(0, 0, 0, 0.35);
     overflow: hidden;
-    animation: pp-chassis-rise 0.35s ease-out;
+}
+
+.pp-hinge-ridge {
+    flex: 1;
+    border-right: 1px solid rgba(0, 0, 0, 0.18);
+    border-left: 1px solid rgba(255, 255, 255, 0.25);
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.06), transparent);
+}
+
+.pp-hinge-ridge:last-child {
+    border-right: none;
+}
+
+.pp-shortcut-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+    margin-top: 3px;
+    padding: 5px 4px 6px;
+    border-radius: 0 0 6px 6px;
+    background: linear-gradient(180deg, #d8dee4 0%, var(--pp-silver) 45%, var(--pp-silver-dark) 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.45),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+        0 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+.pp-base {
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(180deg, var(--pp-red) 0%, var(--pp-red-deep) 100%);
+    border-radius: 8px 8px 18px 18px;
+    padding: 6px 10px 10px;
+    margin-top: -1px;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.25),
+        0 14px 32px rgba(0, 0, 0, 0.45),
+        0 0 0 1px var(--pp-red-edge);
 }
 
 .pp-lattice {
@@ -275,21 +391,7 @@
     box-shadow: inset 0 0 0 1px #2a2e34;
 }
 
-/* Silver shortcut band */
-.pp-shortcut-bar {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 2px;
-    margin-top: 7px;
-    padding: 5px 4px;
-    border-radius: 5px;
-    background: linear-gradient(180deg, #e4e8ec 0%, var(--pp-silver) 40%, var(--pp-silver-dark) 100%);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.55),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.2),
-        0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
+/* Silver shortcut band (lives on hinge) */
 .pp-shortcut {
     height: 26px;
     border: none;
@@ -308,7 +410,7 @@
 }
 
 .pp-keydeck {
-    margin-top: 6px;
+    margin-top: 2px;
     padding: 6px 4px 4px;
     border-radius: 6px;
     background: linear-gradient(180deg, #1c1e22, var(--pp-key-black));
@@ -675,9 +777,10 @@
     to { opacity: 1; }
 }
 
-@keyframes pp-chassis-rise {
-    from { opacity: 0; transform: translateY(18px); }
-    to { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+    .pp-lid {
+        transition-duration: 0.01ms !important;
+    }
 }
 
 @media (max-width: 600px), (max-height: 780px) {

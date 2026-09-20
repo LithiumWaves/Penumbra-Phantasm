@@ -6,7 +6,7 @@
   "js": "index.js",
   "css": "style.css",
   "author": "LithiumWaves",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "homePage": "https://github.com/LithiumWaves/Penumbra-Phantasm",
   "auto_update": true,
   "hooks": {
