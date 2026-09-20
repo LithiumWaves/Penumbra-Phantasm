@@ -55,7 +55,7 @@ async function loadSettingsPanel() {
         try {
             const ctx = getContext();
             if (typeof ctx.renderExtensionTemplateAsync === 'function') {
-                const html = await ctx.renderExtensionTemplateAsync(`third-party/${MODULE_NAME}`, 'settings');
+                const html = await ctx.renderExtensionTemplateAsync('third-party/Penumbra-Phantasm', 'settings');
                 $('#extensions_settings2').append(html);
             }
         } catch (err2) {
@@ -92,10 +92,10 @@ async function loadSettingsPanel() {
     $('#pp_open_phone_btn').on('click', () => openPhone());
     $('#pp_test_mail_btn').on('click', async () => {
         await receiveEmail({
-            from: getActiveCharacterName() || 'Lab Member',
-            subject: 'El Psy Kongroo',
-            body: "This is a test message on your phone.\n\nWhen you're ready, reply like we're talking — not narrating a scene.",
-            replyOptions: ['Got it', 'Who is this?', 'El Psy Kongroo'],
+            from: getActiveCharacterName() || 'Unknown',
+            subject: 'Test',
+            body: 'Mail delivery check.',
+            replyOptions: ['OK', 'Who?', 'Later'],
         });
         openInbox();
     });
@@ -118,8 +118,8 @@ function updateWandItem() {
         const btn = document.createElement('div');
         btn.id = 'pp-wand-item';
         btn.className = 'list-group-item flex-container flexGap5';
-        btn.title = 'Open phone';
-        btn.innerHTML = `<div class="fa-solid fa-mobile-screen-button extensionsMenuExtensionButton"></div><span>Phone / Mail</span>`;
+        btn.title = 'Phone Trigger';
+        btn.innerHTML = `<div class="fa-solid fa-mobile-screen-button extensionsMenuExtensionButton"></div><span>Phone Trigger</span>`;
         btn.addEventListener('click', () => openPhone());
         wandRoot.appendChild(btn);
         return;
@@ -166,8 +166,8 @@ function registerSlashCommands() {
             togglePhone();
             return isPhoneOpen() ? 'Phone opened' : 'Phone closed';
         },
-        aliases: ['ppphone'],
-        helpString: 'Toggle the Penumbra Phantasm phone UI.',
+        aliases: ['phonetrigger'],
+        helpString: 'Toggle Phone Trigger.',
     }));
 
     Parser.addCommandObject(SlashCommand.fromProps({
@@ -293,7 +293,7 @@ jQuery(async () => {
     // Retry wand item — menu may mount late
     setTimeout(updateWandItem, 1500);
 
-    console.log(LOG, 'loaded — phone / e-mail ready');
+    console.log(LOG, 'loaded');
 });
 
 export function onActivate() {
