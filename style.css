@@ -584,7 +584,6 @@
 }
 
 .pp-force-panel {
-    flex-shrink: 0;
     padding: 6px 8px 8px;
     border-bottom: 1px solid rgba(158, 196, 255, 0.18);
     background: rgba(0, 8, 20, 0.55);
@@ -596,6 +595,13 @@
 
 .pp-force-panel .pp-btn {
     margin-top: 2px;
+}
+
+.pp-force-panel textarea {
+    max-height: 72px;
+    overflow-y: auto;
+    resize: none;
+    touch-action: pan-y;
 }
 
 .pp-scroll {
