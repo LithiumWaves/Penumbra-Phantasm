@@ -40,7 +40,25 @@
                     <input id="pp_inject" type="checkbox" />
                     <span>Inject mail summary into main chat prompt</span>
                 </label>
-                <small>Off by default — mail replies run separately from the chatting character.</small>
+                <small>Off by default. When on in a group chat, members can otherwise share each other's mail memory.</small>
+            </div>
+            <div class="pp-settings-block pp-inject-mail-only">
+                <label>
+                    <input id="pp_inject_own" type="checkbox" />
+                    <span>Only inject mail for the speaking character</span>
+                </label>
+                <small>Recommended for groups — character X does not see character Y's mail.</small>
+            </div>
+            <div class="pp-settings-block">
+                <label>
+                    <input id="pp_inject_chat_mail" type="checkbox" />
+                    <span>Inject main chat summary into email prompt</span>
+                </label>
+                <small>Gives mail replies story awareness via <code>{{chat_summary}}</code>.</small>
+            </div>
+            <div class="pp-settings-block pp-chat-summary-only">
+                <label for="pp_chat_summary_n"><span>Chat messages in mail summary</span></label>
+                <input id="pp_chat_summary_n" type="number" class="text_pole" min="1" max="40" step="1" style="max-width:5em;" />
             </div>
             <div class="pp-settings-block">
                 <label>
@@ -96,7 +114,7 @@
                 <textarea id="pp_mail_reply_prompt" class="text_pole" rows="12" spellcheck="false"></textarea>
                 <small>
                     Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{subject}}</code>
-                    <code>{{body}}</code> <code>{{char_card}}</code>
+                    <code>{{body}}</code> <code>{{char_card}}</code> <code>{{chat_summary}}</code>
                     <code>{{description}}</code> <code>{{personality}}</code> <code>{{scenario}}</code>
                 </small>
                 <div style="margin-top:0.4em;">

@@ -17,6 +17,7 @@ import {
     receiveEmail,
     sendUserEmail,
     setMailReceivedHandler,
+    resolveSpeakingContact,
 } from './lib/email.js';
 import { getActiveCharacterName } from './lib/store.js';
 
@@ -30,6 +31,9 @@ function bindSettingsUi() {
     $('#pp_slash').prop('checked', s.enableSlashCommand);
     $('#pp_sound').prop('checked', s.soundEnabled);
     $('#pp_inject').prop('checked', s.injectPrompt);
+    $('#pp_inject_own').prop('checked', s.injectMailOwnOnly !== false);
+    $('#pp_inject_chat_mail').prop('checked', s.injectChatIntoMail !== false);
+    $('#pp_chat_summary_n').val(s.chatSummaryMessages ?? 12);
     $('#pp_auto_open').prop('checked', s.autoOpenOnMail);
     $('#pp_notify_toast').prop('checked', s.notifyInChat);
     $('#pp_position').val(s.phonePosition || 'right');
@@ -40,11 +44,19 @@ function bindSettingsUi() {
     $('#pp_mail_delay_max').val(s.mailReplyDelayMax ?? 8);
     $('#pp_mail_reply_prompt').val(s.mailReplyPrompt || DEFAULT_MAIL_REPLY_PROMPT);
     syncOpenRouterFields();
+    syncInjectFields();
 }
 
 function syncOpenRouterFields() {
     const useOr = String($('#pp_mail_backend').val() || 'main') === 'openrouter';
     $('.pp-openrouter-only').toggle(useOr);
+}
+
+function syncInjectFields() {
+    const injectMail = Boolean($('#pp_inject').prop('checked'));
+    const injectChat = Boolean($('#pp_inject_chat_mail').prop('checked'));
+    $('.pp-inject-mail-only').toggle(injectMail);
+    $('.pp-chat-summary-only').toggle(injectChat);
 }
 
 function onToggle(key, selector, after) {
@@ -90,7 +102,25 @@ async function loadSettingsPanel() {
     onToggle('showWandMenuItem', '#pp_wand', () => updateWandItem());
     onToggle('enableSlashCommand', '#pp_slash');
     onToggle('soundEnabled', '#pp_sound');
-    onToggle('injectPrompt', '#pp_inject', () => updateMailPrompt());
+    onToggle('injectPrompt', '#pp_inject', () => {
+        syncInjectFields();
+        updateMailPrompt();
+    });
+    onToggle('injectMailOwnOnly', '#pp_inject_own', () => updateMailPrompt());
+    onToggle('injectChatIntoMail', '#pp_inject_chat_mail', () => syncInjectFields());
+    $('#pp_chat_summary_n').on('change', () => {
+        const s = getSettings();
+        let n = Number($('#pp_chat_summary_n').val());
+        if (!Number.isFinite(n) || n < 1) {
+            n = 1;
+        }
+        if (n > 40) {
+            n = 40;
+        }
+        s.chatSummaryMessages = Math.floor(n);
+        $('#pp_chat_summary_n').val(s.chatSummaryMessages);
+        saveSettings();
+    });
     onToggle('autoOpenOnMail', '#pp_auto_open');
     onToggle('notifyInChat', '#pp_notify_toast');
 
@@ -319,6 +349,18 @@ function registerEvents() {
             console.error(LOG, 'ingestEmailsFromMessage failed', err);
         }
     });
+
+    // Refresh per-character mail injection before a generation when possible
+    if (event_types.GENERATION_STARTED) {
+        eventSource.on(event_types.GENERATION_STARTED, (...args) => {
+            try {
+                const hint = args.find((a) => a && typeof a === 'object') || args[0];
+                updateMailPrompt(resolveSpeakingContact(hint));
+            } catch (err) {
+                console.debug(LOG, 'GENERATION_STARTED mail prompt refresh failed', err);
+            }
+        });
+    }
 
     // Some ST versions emit CHARACTER_MESSAGE_RENDERED after DOM paint
     if (event_types.CHARACTER_MESSAGE_RENDERED) {
