@@ -38,8 +38,9 @@
             <div class="pp-settings-block">
                 <label>
                     <input id="pp_inject" type="checkbox" />
-                    <span>Inject mail prompt</span>
+                    <span>Inject mail summary into main chat prompt</span>
                 </label>
+                <small>Off by default — mail replies run separately from the chatting character.</small>
             </div>
             <div class="pp-settings-block">
                 <label>
@@ -78,6 +79,29 @@
             <div class="pp-settings-block pp-openrouter-only">
                 <label for="pp_or_model"><span>OpenRouter model</span></label>
                 <input id="pp_or_model" type="text" class="text_pole" placeholder="openai/gpt-4o-mini" />
+            </div>
+
+            <div class="pp-settings-block">
+                <label for="pp_mail_delay_min"><span>Reply delay (seconds)</span></label>
+                <div class="flex-container flexGap5" style="align-items:center;flex-wrap:wrap;">
+                    <input id="pp_mail_delay_min" type="number" class="text_pole" min="0" max="120" step="1" style="max-width:5em;" />
+                    <span>–</span>
+                    <input id="pp_mail_delay_max" type="number" class="text_pole" min="0" max="300" step="1" style="max-width:5em;" />
+                </div>
+                <small>Independent of the main chat. Reply fires after a random delay in this range.</small>
+            </div>
+
+            <div class="pp-settings-block">
+                <label for="pp_mail_reply_prompt"><span>Mail reply prompt</span></label>
+                <textarea id="pp_mail_reply_prompt" class="text_pole" rows="12" spellcheck="false"></textarea>
+                <small>
+                    Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{subject}}</code>
+                    <code>{{body}}</code> <code>{{char_card}}</code>
+                    <code>{{description}}</code> <code>{{personality}}</code> <code>{{scenario}}</code>
+                </small>
+                <div style="margin-top:0.4em;">
+                    <button id="pp_mail_prompt_reset" class="menu_button" type="button">Reset prompt</button>
+                </div>
             </div>
 
             <div class="pp-settings-block">
