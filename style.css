@@ -1286,22 +1286,33 @@ body:has(#pp-phone-root.pp-pos-left) .pp-notify-host {
     transition: opacity 0.5s ease;
 }
 
-.pp-dmail-video {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    background: #000;
-}
-
 .pp-dmail-fallback {
     position: absolute;
     inset: 0;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     background:
         radial-gradient(ellipse at 50% 40%, rgba(40, 90, 120, 0.35), transparent 55%),
         linear-gradient(180deg, #050a12, #0a1520 60%, #030608);
+    z-index: 2;
+}
+
+.pp-dmail-fallback:not([hidden]) {
+    display: flex;
+}
+
+.pp-dmail-fallback[hidden] {
+    display: none !important;
+}
+
+.pp-dmail-video {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
 }
 
 .pp-dmail-meter {
@@ -1329,6 +1340,7 @@ body:has(#pp-phone-root.pp-pos-left) .pp-notify-host {
     inset: -8%;
     pointer-events: none;
     opacity: 0;
+    z-index: 3;
     background:
         repeating-linear-gradient(
             0deg,
@@ -1350,6 +1362,7 @@ body:has(#pp-phone-root.pp-pos-left) .pp-notify-host {
     inset: 0;
     pointer-events: none;
     opacity: 0;
+    z-index: 4;
     background: radial-gradient(circle at 50% 45%, rgba(200, 240, 255, 0.85), rgba(20, 40, 60, 0.2) 55%, #000 100%);
 }
 
