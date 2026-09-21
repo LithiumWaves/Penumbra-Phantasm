@@ -10,7 +10,6 @@ SillyTavern extension that recreates the Steins;Gate **Phone Trigger** loop: ope
 - **Mail** — inbox / outbox / read / compose; optional tap-to-reply phrases
 - **D-Mail** — permanent contact **PhoneWave (name subject to change)** (hideable); in-phone Settings → D-Mail toggles Spectacle / Worldline overlay / Propose / Apply; send plays `lib/vid/divmeter.mp4` when Spectacle is on
 - **Do not reply** — compose toggle skips the AI reply so mail threads do not loop
-- **Handset styles** — Keitai flip-phone or Generic slab shell (Settings → Handset)
 - **Notifications** — Steins;Gate-styled mail alerts + chip unread badge
 - **Send animation** — compose shows an e-mail-client send sequence
 - **Wallpaper & sounds** — presets or custom URLs

@@ -190,22 +190,26 @@
     animation: pp-fade 0.22s ease;
 }
 
-.pp-close {
+.pp-close-corner {
     position: absolute;
-    top: -12px;
-    right: -12px;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 1px solid #666;
-    background: #2a2e32;
-    color: #ddd;
+    top: 0;
+    right: 0;
+    z-index: 30;
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0 14px 0 0;
+    background: transparent;
     cursor: pointer;
-    z-index: 3;
-    font-size: 14px;
-    line-height: 1;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+}
+
+.pp-close-corner:focus-visible {
+    outline: 1px solid rgba(158, 196, 255, 0.55);
+    outline-offset: -2px;
 }
 
 /* —— Red keitai chassis with flip hinge —— */
@@ -276,89 +280,6 @@
 
 .pp-flip.is-closing .pp-lid {
     transform: translateZ(20px) rotateX(-158deg);
-}
-
-/* —— Generic slab handset (mail-only look) —— */
-.pp-design-generic.pp-chassis,
-.pp-design-generic .pp-chassis {
-    border-radius: 18px;
-}
-
-.pp-design-generic .pp-lid {
-    transition: none;
-}
-
-.pp-design-generic .pp-flip.is-closed .pp-lid,
-.pp-design-generic .pp-flip.is-opening .pp-lid,
-.pp-design-generic .pp-flip.is-open .pp-lid,
-.pp-design-generic .pp-flip.is-closing .pp-lid {
-    transform: none;
-}
-
-.pp-design-generic .pp-lid-face {
-    background: linear-gradient(180deg, #4a5360 0%, #2c333c 55%, #1a1f26 100%);
-    border-radius: 16px 16px 10px 10px;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.18),
-        0 4px 12px rgba(0, 0, 0, 0.35),
-        0 0 0 1px #0e1218;
-}
-
-.pp-design-generic .pp-lid-back {
-    display: none;
-}
-
-.pp-design-generic .pp-lattice {
-    opacity: 0.35;
-    filter: grayscale(1);
-}
-
-.pp-design-generic .pp-hinge {
-    margin: 0 6px;
-}
-
-.pp-design-generic .pp-shortcut-bar {
-    background: linear-gradient(180deg, #3a414c 0%, #252b33 100%);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.12),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.35);
-}
-
-.pp-design-generic .pp-shortcut {
-    color: #c8d0da;
-}
-
-.pp-design-generic .pp-base {
-    background: linear-gradient(180deg, #2a3038 0%, #171b21 100%);
-    border-radius: 10px 10px 16px 16px;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.08),
-        0 0 0 1px #0a0d11;
-}
-
-.pp-design-generic .pp-softkey,
-.pp-design-generic .pp-nav-btn,
-.pp-design-generic .pp-nav-ok,
-.pp-design-generic .pp-key {
-    background: linear-gradient(180deg, #3a424c, #222830);
-    color: #d2dae4;
-    border-color: #12161c;
-}
-
-.pp-design-generic .pp-call-answer {
-    background: linear-gradient(180deg, #3d7a55, #2a553b);
-}
-
-.pp-design-generic .pp-call-end {
-    background: linear-gradient(180deg, #7a3d3d, #552a2a);
-}
-
-.pp-design-generic .pp-vent-bar {
-    background: linear-gradient(180deg, #3a424c, #252b33);
-}
-
-.pp-design-generic .pp-screen {
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55);
 }
 
 /* Silver icon strip = the hinge */
