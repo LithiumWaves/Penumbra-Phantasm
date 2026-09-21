@@ -1133,7 +1133,6 @@
     }
 
     .pp-key { height: 28px; }
-    .pp-close { top: -8px; right: -8px; }
 }
 
 @media (max-height: 640px) {
