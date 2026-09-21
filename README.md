@@ -8,7 +8,7 @@ SillyTavern extension that recreates the Steins;Gate **Phone Trigger** loop: ope
 - **Handset chassis** — red keitai with working multi-tap keypad (T9-style Latin)
 - **Mobile** — `<dialog showModal()>` top layer + scale-to-fit (S25 Ultra–safe)
 - **Mail** — inbox / outbox / read / compose; optional tap-to-reply phrases; trash on open mail
-- **Calls** — Presence-less handset calls: dial a character and talk in the phone UI (not the main chat); optional call initiative (incoming rings); generation via unique prompt, main chat presets, or both
+- **Calls** — dial a character and talk in the phone UI (not the main chat); optional call initiative (incoming rings); generation via unique prompt, main chat presets, or both
 - **Character initiative** — optional VN-style unsolicited mail with interval, chance, idle, caps, quiet hours, and contact rules (off by default)
 - **D-Mail** — permanent contact **PhoneWave (name subject to change)** (hideable); Spectacle (FX only) / Worldline / Propose / Apply; clearable worldline facts
 - **Strong Apply** — optional lorebook (pick which book) + optional smooth character-card rewrite (confirm screens; no chat paste, no worldline block dump)
@@ -53,7 +53,7 @@ Body
 
 Mail replies are generated independently of the main chat character (To: contact card + editable prompt). A short delay (default 3–8s) runs before the reply arrives. Optional chat→mail summary keeps replies story-aware; optional mail→chat injection can be limited to the speaking character so group members do not share private mail.
 
-Mail to **PhoneWave (name subject to change)** is a D-Mail: no character reply. **Spectacle** plays the divergence meter cutscene (video + audio) in the browser top layer and does not create worldline facts. **Propose** opens an edit gate before writers run. **Worldline (soft)** injects facts into the LLM prompt only; **Apply (hard)** optionally confirms a lorebook write and/or a smooth character-card rewrite. Soft and hard can both be on; Propose delays writers until you confirm. Compose shows sender/participants, selectable past context, **36-character ASCII** limit (on by default), cosmetic **redirect phone** (own inbox vs character), and cosmetic **arrival datetime**. D-Mails delivered to your inbox always arrive as **three split parts** (e.g. 36 → 12+12+12). They stay out of the Outbox unless **Show in outbox** is enabled.
+Mail to **PhoneWave (name subject to change)** is a D-Mail: no character reply. **Spectacle** plays the divergence meter cutscene (video + audio) in the browser top layer and does not create worldline facts. **Propose** opens an edit gate before writers run. **Worldline (soft)** injects facts into the LLM prompt only; **Apply (hard)** optionally confirms a lorebook write and/or a smooth character-card rewrite. Soft and hard can both be on; Propose delays writers until you confirm. Compose shows sender/participants, selectable past context, **36-character ASCII** limit (on by default), **redirect phone** (own inbox vs character mail memory), and optional **arrival datetime**. Deliveries are always **three split parts** (e.g. 36 → 12+12+12). Character-routed D-Mails land in that character’s Mail memory and stay unchecked by default. They stay out of the Outbox unless **Show in outbox** is enabled.
 
 ### Character initiative
 
@@ -61,7 +61,7 @@ Optional VN-style unsolicited mail (Extensions drawer → **Character initiative
 
 ### Calls
 
-Presence-less calls live entirely in the handset: green ☎ → pick a contact → talk in the call screen. Generation mode can be **unique call prompt**, **main chat completion presets** (`generateQuietPrompt`), or **both** (presets + full call template). Optional **Call initiative** rings you with mail-style throttling. Hang up with red ☎ or soft **End**.
+Calls live in the phone UI: green ☎ → pick a contact → talk in the call screen. Generation mode can be **unique call prompt**, **main chat completion presets** (`generateQuietPrompt`), or **both** (presets + full call template). Optional **Call initiative** rings you with mail-style throttling. Hang up with red ☎ or soft **End**.
 
 Mail is stored in chat metadata. Wallpaper / sounds / reply prompt are extension settings.
 
