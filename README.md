@@ -52,7 +52,7 @@ Body
 
 Mail replies are generated independently of the main chat character (To: contact card + editable prompt). A short delay (default 3–8s) runs before the reply arrives. Optional chat→mail summary keeps replies story-aware; optional mail→chat injection can be limited to the speaking character so group members do not share private mail.
 
-Mail to **PhoneWave (name subject to change)** is a D-Mail: no character reply. **Spectacle** plays the divergence meter in the browser top layer (mobile-safe) and does not create worldline facts. Facts are only derived when **Worldline**, **Propose**, or **Apply** is on; by default Worldline injects them into the prompt. **Apply** also writes a system note and a tagged block onto the active character card.
+Mail to **PhoneWave (name subject to change)** is a D-Mail: no character reply. **Spectacle** plays the divergence meter cutscene (video + audio) in the browser top layer and does not create worldline facts. **Propose** opens an edit gate before writers run. **Worldline (soft)** injects facts into the LLM prompt only; **Apply (hard)** writes a system chat note and a tagged block onto the active character card. Soft and hard can both be on; Propose delays both until you confirm.
 
 ### Character initiative
 
