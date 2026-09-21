@@ -11,7 +11,8 @@ SillyTavern extension that recreates the Steins;Gate **Phone Trigger** loop: ope
 - **Calls** — Presence-less handset calls: dial a character and talk in the phone UI (not the main chat); optional call initiative (incoming rings); generation via unique prompt, main chat presets, or both
 - **Character initiative** — optional VN-style unsolicited mail with interval, chance, idle, caps, quiet hours, and contact rules (off by default)
 - **D-Mail** — permanent contact **PhoneWave (name subject to change)** (hideable); Spectacle (FX only) / Worldline / Propose / Apply; clearable worldline facts
-- **Strong Apply** — lorebook “Phone Trigger Worldline” + confirmed character-card worldline block (no chat paste)
+- **Strong Apply** — optional lorebook (pick which book) + optional smooth character-card rewrite (confirm screens; no chat paste, no worldline block dump)
+- **Call memory** — persist finished calls; optional inject; summarize on hang-up (or per-call Σ) for token-friendly recollection
 - **Do not reply** — compose toggle skips the AI reply so mail threads do not loop
 - **Notifications** — Steins;Gate-styled mail alerts + chip unread badge
 - **Send animation** — compose shows an e-mail-client send sequence
