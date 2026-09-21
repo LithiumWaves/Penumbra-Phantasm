@@ -5,10 +5,11 @@ SillyTavern extension that recreates the Steins;Gate **Phone Trigger** loop: ope
 ## Features
 
 - **Phone UI** — draggable MAIL chip, Extensions wand menu, `/phone`
-- **Handset chassis** — red / silver / black keitai styled after Okabe’s phone
+- **Handset chassis** — red keitai with working multi-tap keypad (T9-style Latin)
 - **Mobile** — `<dialog showModal()>` top layer + scale-to-fit (S25 Ultra–safe)
-- **Mail** — inbox / outbox / read / compose; optional tap-to-reply phrases
-- **D-Mail** — permanent contact **PhoneWave (name subject to change)** (hideable); in-phone Settings → D-Mail toggles Spectacle / Worldline overlay / Propose / Apply; send plays `lib/vid/divmeter.mp4` when Spectacle is on
+- **Mail** — inbox / outbox / read / compose; optional tap-to-reply phrases; trash on open mail
+- **D-Mail** — permanent contact **PhoneWave (name subject to change)** (hideable); Spectacle / Worldline / Propose / Apply; clearable worldline facts
+- **Strong Apply** — system chat note + sticky worldline block on the active character card
 - **Do not reply** — compose toggle skips the AI reply so mail threads do not loop
 - **Notifications** — Steins;Gate-styled mail alerts + chip unread badge
 - **Send animation** — compose shows an e-mail-client send sequence
@@ -22,9 +23,10 @@ SillyTavern extension that recreates the Steins;Gate **Phone Trigger** loop: ope
 
 ## Install
 
-1. Extensions → Install extension → this repository URL
+1. Extensions → Install extension → `https://github.com/LithiumWaves/Phone-Trigger`
 2. Enable **Phone Trigger**
-3. Divergence clip lives at `lib/vid/divmeter.mp4` (already in-repo); `assets/divmeter.mp4` works as a fallback path
+3. Folder should be `scripts/extensions/third-party/Phone-Trigger` (legacy `Penumbra-Phantasm` still works for assets/settings fallback)
+4. Divergence clip: `lib/vid/divmeter.mp4`
 
 ## Commands
 
@@ -48,6 +50,16 @@ Body
 
 Mail replies are generated independently of the main chat character (To: contact card + editable prompt). A short delay (default 3–8s) runs before the reply arrives. Optional chat→mail summary keeps replies story-aware; optional mail→chat injection can be limited to the speaking character so group members do not share private mail.
 
-Mail to **PhoneWave (name subject to change)** is a D-Mail: no character reply; worldline facts are stored in chat metadata and (by default) injected into the prompt.
+Mail to **PhoneWave (name subject to change)** is a D-Mail: no character reply; worldline facts are stored in chat metadata and (by default) injected into the prompt. **Apply** also writes a system note and a tagged block onto the active character card.
 
 Mail is stored in chat metadata. Wallpaper / sounds / reply prompt are extension settings.
+
+## Keypad
+
+Focus a subject/body field, then use the chassis keys:
+
+- **2–9** multi-tap letters (classic phone timing)
+- **Long-press** inserts the digit
+- **0** space (long-press = `0`)
+- **\*** toggles Aa / aa
+- **◀** soft-nav left = backspace
