@@ -350,6 +350,52 @@
                 </div>
             </details>
 
+            <details class="pp-drawer-cat" open>
+                <summary>Calls</summary>
+                <div class="pp-drawer-cat-body">
+                    <p class="pp-drawer-lead">
+                        Presence-less voice calls: talk inside the handset UI with one character.
+                        Conversation stays on the phone — not the main chat log.
+                    </p>
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_call_enabled" type="checkbox" />
+                            <span>Enable calls</span>
+                        </label>
+                        <small>Green ☎ opens the dialer. Soft keys: Call / Say · End.</small>
+                    </div>
+                    <div class="pp-call-only">
+                        <div class="pp-settings-block">
+                            <label for="pp_call_dial_ms"><span>Dial delay (ms)</span></label>
+                            <input id="pp_call_dial_ms" type="number" class="text_pole" min="0" max="4000" step="50" style="max-width:6em;" />
+                            <small>“Calling…” pause before connected.</small>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_call_context"><span>Context turns</span></label>
+                            <input id="pp_call_context" type="number" class="text_pole" min="2" max="40" step="1" style="max-width:5em;" />
+                            <small>How many prior call lines are fed to the model.</small>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_call_guidance"><span>Default mood / topic hint</span></label>
+                            <textarea id="pp_call_guidance" class="text_pole" rows="2" spellcheck="true" placeholder="Optional"></textarea>
+                            <small>Fed as <code>{{guidance}}</code> on every call turn.</small>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_call_prompt"><span>Call prompt</span></label>
+                            <textarea id="pp_call_prompt" class="text_pole" rows="10" spellcheck="false"></textarea>
+                            <small>
+                                Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{transcript}}</code>
+                                <code>{{last_user}}</code> <code>{{guidance}}</code> <code>{{char_card}}</code>
+                                <code>{{chat_summary}}</code>
+                            </small>
+                            <div style="margin-top:0.4em;">
+                                <button id="pp_call_prompt_reset" class="menu_button" type="button">Reset call prompt</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
             <details class="pp-drawer-cat">
                 <summary>D-Mail</summary>
                 <div class="pp-drawer-cat-body">
