@@ -5,196 +5,381 @@
             <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
         </div>
         <div class="inline-drawer-content">
-            <div class="pp-settings-block">
-                <label>
-                    <input id="pp_enabled" type="checkbox" />
-                    <span>Enable</span>
-                </label>
-            </div>
-            <div class="pp-settings-block">
-                <label>
-                    <input id="pp_show_chip" type="checkbox" />
-                    <span>Mail status chip</span>
-                </label>
-                <small>Draggable MAIL strip. Drag to reposition; uncheck to hide.</small>
-            </div>
-            <div class="pp-settings-block pp-chip-only">
-                <button id="pp_chip_reset" class="menu_button" type="button">Reset chip position</button>
-            </div>
-            <div class="pp-settings-block">
-                <label>
-                    <input id="pp_wand" type="checkbox" />
-                    <span>Extensions (wand) menu — Open phone</span>
-                </label>
-                <small>Adds a Phone Trigger item to the magic wand / Extensions menu.</small>
-            </div>
-            <div class="pp-settings-block">
-                <label>
-                    <input id="pp_slash" type="checkbox" />
-                    <span>Slash commands</span>
-                </label>
-            </div>
-            <div class="pp-settings-block">
-                <label>
-                    <input id="pp_sound" type="checkbox" />
-                    <span>Sounds</span>
-                </label>
-            </div>
-            <div class="pp-settings-block">
-                <label>
-                    <input id="pp_inject" type="checkbox" />
-                    <span>Inject mail into chat when a character speaks</span>
-                </label>
-                <small>Loads selected e-mails for that character (phone Mail → Memory). Default auto = to/from them.</small>
-            </div>
-            <div class="pp-settings-block">
-                <label>
-                    <input id="pp_inject_worldline" type="checkbox" />
-                    <span>Inject worldline after D-Mail</span>
-                </label>
-                <small>
-                    Same as phone Settings → D-Mail → Worldline overlay.
-                    Full tier controls (Spectacle / Propose / Apply) live on the handset.
-                </small>
-            </div>
-            <div class="pp-settings-block pp-inject-mail-only">
-                <label for="pp_mail_memory_scope"><span>Auto memory fallback</span></label>
-                <select id="pp_mail_memory_scope">
-                    <option value="speaker">Speaking character to/from</option>
-                    <option value="all">All mail in this chat</option>
-                </select>
-                <small>Used when a character is still on Auto. Manual picks on the phone override this.</small>
-            </div>
-            <div class="pp-settings-block pp-inject-mail-only">
-                <label for="pp_mail_memory_max"><span>Max mails per direction</span></label>
-                <input id="pp_mail_memory_max" type="number" class="text_pole" min="1" max="40" step="1" style="max-width:5em;" />
-            </div>
-            <div class="pp-settings-block pp-inject-mail-only">
-                <label for="pp_mail_memory_preview"><span>Body preview length</span></label>
-                <input id="pp_mail_memory_preview" type="number" class="text_pole" min="20" max="500" step="10" style="max-width:5em;" />
-            </div>
-            <div class="pp-settings-block pp-inject-mail-only">
-                <label for="pp_mail_memory_pos"><span>Prompt position / depth</span></label>
-                <div class="flex-container flexGap5" style="align-items:center;flex-wrap:wrap;">
-                    <input id="pp_mail_memory_pos" type="number" class="text_pole" min="0" max="10" step="1" style="max-width:5em;" title="ST extension prompt position" />
-                    <span>/</span>
-                    <input id="pp_mail_memory_depth" type="number" class="text_pole" min="0" max="99" step="1" style="max-width:5em;" title="ST extension prompt depth" />
+
+            <details class="pp-drawer-cat" open>
+                <summary>Extension &amp; UI</summary>
+                <div class="pp-drawer-cat-body">
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_enabled" type="checkbox" />
+                            <span>Enable</span>
+                        </label>
+                    </div>
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_show_chip" type="checkbox" />
+                            <span>Mail status chip</span>
+                        </label>
+                        <small>Draggable MAIL strip. Drag to reposition; uncheck to hide.</small>
+                    </div>
+                    <div class="pp-settings-block pp-chip-only">
+                        <button id="pp_chip_reset" class="menu_button" type="button">Reset chip position</button>
+                    </div>
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_wand" type="checkbox" />
+                            <span>Extensions (wand) menu — Open phone</span>
+                        </label>
+                        <small>Adds a Phone Trigger item to the magic wand / Extensions menu.</small>
+                    </div>
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_slash" type="checkbox" />
+                            <span>Slash commands</span>
+                        </label>
+                    </div>
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_sound" type="checkbox" />
+                            <span>Sounds</span>
+                        </label>
+                    </div>
                 </div>
-                <small>SillyTavern extension prompt position (usually 1 = in-chat) and depth.</small>
-            </div>
-            <div class="pp-settings-block pp-inject-mail-only">
-                <label for="pp_mail_memory_prompt"><span>Mail memory template</span></label>
-                <textarea id="pp_mail_memory_prompt" class="text_pole" rows="10" spellcheck="false"></textarea>
-                <small>
-                    Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{inbox}}</code>
-                    <code>{{outbox}}</code> <code>{{mail_list}}</code> <code>{{unread_count}}</code>
-                    <code>{{mail_count}}</code> <code>{{send_instructions}}</code>
-                </small>
-                <div style="margin-top:0.4em;">
-                    <button id="pp_mail_memory_reset" class="menu_button" type="button">Reset memory template</button>
+            </details>
+
+            <details class="pp-drawer-cat">
+                <summary>Notifications</summary>
+                <div class="pp-drawer-cat-body">
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_auto_open" type="checkbox" />
+                            <span>Open phone on new mail</span>
+                        </label>
+                    </div>
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_notify_toast" type="checkbox" />
+                            <span>Mail notifications</span>
+                        </label>
+                        <small>Steins;Gate-styled alerts when mail arrives (tap to open inbox).</small>
+                    </div>
                 </div>
-            </div>
-            <div class="pp-settings-block pp-inject-mail-only">
-                <label for="pp_mail_memory_entry"><span>Mail entry line</span></label>
-                <textarea id="pp_mail_memory_entry" class="text_pole" rows="2" spellcheck="false"></textarea>
-                <small>
-                    Per-mail line: <code>{{status}}</code> <code>{{from}}</code> <code>{{to}}</code>
-                    <code>{{subject}}</code> <code>{{preview}}</code> <code>{{body}}</code> <code>{{direction}}</code>
-                </small>
-            </div>
-            <div class="pp-settings-block pp-inject-mail-only">
-                <label for="pp_mail_memory_send"><span>Send instructions block</span></label>
-                <textarea id="pp_mail_memory_send" class="text_pole" rows="3" spellcheck="false"></textarea>
-                <small>Inserted as <code>{{send_instructions}}</code>. Leave blank to omit.</small>
-            </div>
-            <div class="pp-settings-block">
-                <label>
-                    <input id="pp_inject_chat_mail" type="checkbox" />
-                    <span>Inject main chat summary into email prompt</span>
-                </label>
-                <small>Gives mail replies story awareness via <code>{{chat_summary}}</code>.</small>
-            </div>
-            <div class="pp-settings-block pp-chat-summary-only">
-                <label for="pp_chat_summary_n"><span>Chat messages in mail summary</span></label>
-                <input id="pp_chat_summary_n" type="number" class="text_pole" min="1" max="40" step="1" style="max-width:5em;" />
-            </div>
-            <div class="pp-settings-block">
-                <label>
-                    <input id="pp_auto_open" type="checkbox" />
-                    <span>Open phone on new mail</span>
-                </label>
-            </div>
-            <div class="pp-settings-block">
-                <label>
-                    <input id="pp_notify_toast" type="checkbox" />
-                    <span>Mail notifications</span>
-                </label>
-                <small>Steins;Gate-styled alerts when mail arrives (tap to open inbox).</small>
-            </div>
+            </details>
 
-            <hr />
-            <div class="pp-settings-block">
-                <label for="pp_mail_backend"><span>Mail generation</span></label>
-                <select id="pp_mail_backend">
-                    <option value="main">Main LLM / API</option>
-                    <option value="openrouter">OpenRouter</option>
-                </select>
-            </div>
-            <div class="pp-settings-block pp-openrouter-only">
-                <label for="pp_or_key"><span>OpenRouter API key</span></label>
-                <input id="pp_or_key" type="password" class="text_pole" autocomplete="off" spellcheck="false" />
-            </div>
-            <div class="pp-settings-block pp-openrouter-only">
-                <label for="pp_or_model"><span>OpenRouter model</span></label>
-                <input id="pp_or_model" type="text" class="text_pole" placeholder="openai/gpt-4o-mini" />
-            </div>
-
-            <div class="pp-settings-block">
-                <label for="pp_mail_delay_min"><span>Reply delay (seconds)</span></label>
-                <div class="flex-container flexGap5" style="align-items:center;flex-wrap:wrap;">
-                    <input id="pp_mail_delay_min" type="number" class="text_pole" min="0" max="120" step="1" style="max-width:5em;" />
-                    <span>–</span>
-                    <input id="pp_mail_delay_max" type="number" class="text_pole" min="0" max="300" step="1" style="max-width:5em;" />
+            <details class="pp-drawer-cat">
+                <summary>Mail → chat memory</summary>
+                <div class="pp-drawer-cat-body">
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_inject" type="checkbox" />
+                            <span>Inject mail into chat when a character speaks</span>
+                        </label>
+                        <small>Loads selected e-mails for that character (phone Mail → Memory). Default auto = to/from them.</small>
+                    </div>
+                    <div class="pp-settings-block pp-inject-mail-only">
+                        <label for="pp_mail_memory_scope"><span>Auto memory fallback</span></label>
+                        <select id="pp_mail_memory_scope">
+                            <option value="speaker">Speaking character to/from</option>
+                            <option value="all">All mail in this chat</option>
+                        </select>
+                        <small>Used when a character is still on Auto. Manual picks on the phone override this.</small>
+                    </div>
+                    <div class="pp-settings-block pp-inject-mail-only">
+                        <label for="pp_mail_memory_max"><span>Max mails per direction</span></label>
+                        <input id="pp_mail_memory_max" type="number" class="text_pole" min="1" max="40" step="1" style="max-width:5em;" />
+                    </div>
+                    <div class="pp-settings-block pp-inject-mail-only">
+                        <label for="pp_mail_memory_preview"><span>Body preview length</span></label>
+                        <input id="pp_mail_memory_preview" type="number" class="text_pole" min="20" max="500" step="10" style="max-width:5em;" />
+                    </div>
+                    <div class="pp-settings-block pp-inject-mail-only">
+                        <label for="pp_mail_memory_pos"><span>Prompt position / depth</span></label>
+                        <div class="flex-container flexGap5" style="align-items:center;flex-wrap:wrap;">
+                            <input id="pp_mail_memory_pos" type="number" class="text_pole" min="0" max="10" step="1" style="max-width:5em;" title="ST extension prompt position" />
+                            <span>/</span>
+                            <input id="pp_mail_memory_depth" type="number" class="text_pole" min="0" max="99" step="1" style="max-width:5em;" title="ST extension prompt depth" />
+                        </div>
+                        <small>SillyTavern extension prompt position (usually 1 = in-chat) and depth.</small>
+                    </div>
+                    <div class="pp-settings-block pp-inject-mail-only">
+                        <label for="pp_mail_memory_prompt"><span>Mail memory template</span></label>
+                        <textarea id="pp_mail_memory_prompt" class="text_pole" rows="10" spellcheck="false"></textarea>
+                        <small>
+                            Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{inbox}}</code>
+                            <code>{{outbox}}</code> <code>{{mail_list}}</code> <code>{{unread_count}}</code>
+                            <code>{{mail_count}}</code> <code>{{send_instructions}}</code>
+                        </small>
+                        <div style="margin-top:0.4em;">
+                            <button id="pp_mail_memory_reset" class="menu_button" type="button">Reset memory template</button>
+                        </div>
+                    </div>
+                    <div class="pp-settings-block pp-inject-mail-only">
+                        <label for="pp_mail_memory_entry"><span>Mail entry line</span></label>
+                        <textarea id="pp_mail_memory_entry" class="text_pole" rows="2" spellcheck="false"></textarea>
+                        <small>
+                            Per-mail line: <code>{{status}}</code> <code>{{from}}</code> <code>{{to}}</code>
+                            <code>{{subject}}</code> <code>{{preview}}</code> <code>{{body}}</code> <code>{{direction}}</code>
+                        </small>
+                    </div>
+                    <div class="pp-settings-block pp-inject-mail-only">
+                        <label for="pp_mail_memory_send"><span>Send instructions block</span></label>
+                        <textarea id="pp_mail_memory_send" class="text_pole" rows="3" spellcheck="false"></textarea>
+                        <small>Inserted as <code>{{send_instructions}}</code>. Leave blank to omit.</small>
+                    </div>
                 </div>
-                <small>Independent of the main chat. Reply fires after a random delay in this range.</small>
-            </div>
+            </details>
 
-            <div class="pp-settings-block">
-                <label for="pp_mail_reply_prompt"><span>Mail reply prompt</span></label>
-                <textarea id="pp_mail_reply_prompt" class="text_pole" rows="12" spellcheck="false"></textarea>
-                <small>
-                    Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{subject}}</code>
-                    <code>{{body}}</code> <code>{{char_card}}</code> <code>{{chat_summary}}</code>
-                    <code>{{description}}</code> <code>{{personality}}</code> <code>{{scenario}}</code>
-                </small>
-                <div style="margin-top:0.4em;">
-                    <button id="pp_mail_prompt_reset" class="menu_button" type="button">Reset reply prompt</button>
+            <details class="pp-drawer-cat">
+                <summary>Chat → mail</summary>
+                <div class="pp-drawer-cat-body">
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_inject_chat_mail" type="checkbox" />
+                            <span>Inject main chat summary into email prompt</span>
+                        </label>
+                        <small>Gives mail replies story awareness via <code>{{chat_summary}}</code>.</small>
+                    </div>
+                    <div class="pp-settings-block pp-chat-summary-only">
+                        <label for="pp_chat_summary_n"><span>Chat messages in mail summary</span></label>
+                        <input id="pp_chat_summary_n" type="number" class="text_pole" min="1" max="40" step="1" style="max-width:5em;" />
+                    </div>
                 </div>
-            </div>
+            </details>
 
-            <div class="pp-settings-block">
-                <label for="pp_mail_force_prompt"><span>Forced mail prompt</span></label>
-                <textarea id="pp_mail_force_prompt" class="text_pole" rows="10" spellcheck="false"></textarea>
-                <small>
-                    Used when receiving guided mail from the inbox signal control.
-                    Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{guidance}}</code>
-                    <code>{{subject}}</code> <code>{{char_card}}</code> <code>{{chat_summary}}</code>
-                </small>
-                <div style="margin-top:0.4em;">
-                    <button id="pp_mail_force_reset" class="menu_button" type="button">Reset force prompt</button>
+            <details class="pp-drawer-cat">
+                <summary>Mail generation</summary>
+                <div class="pp-drawer-cat-body">
+                    <div class="pp-settings-block">
+                        <label for="pp_mail_backend"><span>Mail generation backend</span></label>
+                        <select id="pp_mail_backend">
+                            <option value="main">Main LLM / API</option>
+                            <option value="openrouter">OpenRouter</option>
+                        </select>
+                    </div>
+                    <div class="pp-settings-block pp-openrouter-only">
+                        <label for="pp_or_key"><span>OpenRouter API key</span></label>
+                        <input id="pp_or_key" type="password" class="text_pole" autocomplete="off" spellcheck="false" />
+                    </div>
+                    <div class="pp-settings-block pp-openrouter-only">
+                        <label for="pp_or_model"><span>OpenRouter model</span></label>
+                        <input id="pp_or_model" type="text" class="text_pole" placeholder="openai/gpt-4o-mini" />
+                    </div>
+                    <div class="pp-settings-block">
+                        <label for="pp_mail_delay_min"><span>Reply delay (seconds)</span></label>
+                        <div class="flex-container flexGap5" style="align-items:center;flex-wrap:wrap;">
+                            <input id="pp_mail_delay_min" type="number" class="text_pole" min="0" max="120" step="1" style="max-width:5em;" />
+                            <span>–</span>
+                            <input id="pp_mail_delay_max" type="number" class="text_pole" min="0" max="300" step="1" style="max-width:5em;" />
+                        </div>
+                        <small>Independent of the main chat. Reply fires after a random delay in this range.</small>
+                    </div>
+                    <div class="pp-settings-block">
+                        <label for="pp_mail_reply_prompt"><span>Mail reply prompt</span></label>
+                        <textarea id="pp_mail_reply_prompt" class="text_pole" rows="12" spellcheck="false"></textarea>
+                        <small>
+                            Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{subject}}</code>
+                            <code>{{body}}</code> <code>{{char_card}}</code> <code>{{chat_summary}}</code>
+                            <code>{{description}}</code> <code>{{personality}}</code> <code>{{scenario}}</code>
+                        </small>
+                        <div style="margin-top:0.4em;">
+                            <button id="pp_mail_prompt_reset" class="menu_button" type="button">Reset reply prompt</button>
+                        </div>
+                    </div>
+                    <div class="pp-settings-block">
+                        <label for="pp_mail_force_prompt"><span>Forced mail prompt</span></label>
+                        <textarea id="pp_mail_force_prompt" class="text_pole" rows="10" spellcheck="false"></textarea>
+                        <small>
+                            Used when receiving guided mail from the inbox signal control.
+                            Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{guidance}}</code>
+                            <code>{{subject}}</code> <code>{{char_card}}</code> <code>{{chat_summary}}</code>
+                        </small>
+                        <div style="margin-top:0.4em;">
+                            <button id="pp_mail_force_reset" class="menu_button" type="button">Reset force prompt</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </details>
 
-            <div class="pp-settings-block">
-                <button id="pp_open_phone_btn" class="menu_button" type="button">Open phone</button>
-                <button id="pp_test_mail_btn" class="menu_button" type="button">Test mail</button>
-            </div>
+            <details class="pp-drawer-cat" open>
+                <summary>Character initiative</summary>
+                <div class="pp-drawer-cat-body">
+                    <p class="pp-drawer-lead">
+                        Characters may send unsolicited mail on their own (VN-style), with heavy throttling so it stays optional.
+                        Off by default.
+                    </p>
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_initiative_enabled" type="checkbox" />
+                            <span>Enable character initiative</span>
+                        </label>
+                    </div>
 
-            <hr />
-            <p class="pp-settings-block">
-                <code>/phone</code> · <code>/mail</code> · <code>/mailsend subject=…</code> ·
-                <code>send_email</code> tool · <code>&lt;email&gt;</code> tags
-            </p>
+                    <div class="pp-initiative-only">
+                        <div class="pp-settings-block">
+                            <label for="pp_initiative_interval_min"><span>Check interval (seconds)</span></label>
+                            <div class="flex-container flexGap5" style="align-items:center;flex-wrap:wrap;">
+                                <input id="pp_initiative_interval_min" type="number" class="text_pole" min="30" max="7200" step="10" style="max-width:5.5em;" />
+                                <span>–</span>
+                                <input id="pp_initiative_interval_max" type="number" class="text_pole" min="30" max="14400" step="10" style="max-width:5.5em;" />
+                            </div>
+                            <small>How often the extension rolls for a spontaneous mail.</small>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_initiative_chance"><span>Chance per check (%)</span></label>
+                            <input id="pp_initiative_chance" type="number" class="text_pole" min="0" max="100" step="1" style="max-width:5em;" />
+                            <small>After gates pass, this is the probability a mail is actually generated.</small>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_initiative_grace"><span>Startup grace (seconds)</span></label>
+                            <input id="pp_initiative_grace" type="number" class="text_pole" min="0" max="3600" step="5" style="max-width:5.5em;" />
+                            <small>No initiative after enable / chat change until this elapses.</small>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_initiative_cooldown"><span>Cooldown after send (seconds)</span></label>
+                            <input id="pp_initiative_cooldown" type="number" class="text_pole" min="0" max="7200" step="10" style="max-width:5.5em;" />
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_initiative_max_hour"><span>Max per hour</span></label>
+                            <input id="pp_initiative_max_hour" type="number" class="text_pole" min="0" max="60" step="1" style="max-width:5em;" />
+                            <small>0 = unlimited. Rolling 60 minutes.</small>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_initiative_max_day"><span>Max per day</span></label>
+                            <input id="pp_initiative_max_day" type="number" class="text_pole" min="0" max="200" step="1" style="max-width:5em;" />
+                            <small>0 = unlimited. Rolling 24 hours.</small>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_initiative_max_pending"><span>Max pending jobs</span></label>
+                            <input id="pp_initiative_max_pending" type="number" class="text_pole" min="0" max="5" step="1" style="max-width:5em;" />
+                        </div>
+
+                        <div class="pp-settings-block">
+                            <label>
+                                <input id="pp_initiative_idle" type="checkbox" />
+                                <span>Only when chat is idle</span>
+                            </label>
+                        </div>
+                        <div class="pp-settings-block pp-initiative-idle-only">
+                            <label for="pp_initiative_idle_sec"><span>Idle for (seconds)</span></label>
+                            <input id="pp_initiative_idle_sec" type="number" class="text_pole" min="0" max="3600" step="5" style="max-width:5.5em;" />
+                        </div>
+                        <div class="pp-settings-block">
+                            <label>
+                                <input id="pp_initiative_pause_gen" type="checkbox" />
+                                <span>Pause while generating</span>
+                            </label>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label>
+                                <input id="pp_initiative_pause_phone" type="checkbox" />
+                                <span>Pause while phone is open</span>
+                            </label>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label>
+                                <input id="pp_initiative_tab" type="checkbox" />
+                                <span>Require visible browser tab</span>
+                            </label>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label>
+                                <input id="pp_initiative_skip_unread" type="checkbox" />
+                                <span>Skip if any unread mail</span>
+                            </label>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label>
+                                <input id="pp_initiative_skip_unread_sender" type="checkbox" />
+                                <span>Skip if unread from that sender</span>
+                            </label>
+                        </div>
+
+                        <div class="pp-settings-block">
+                            <label for="pp_initiative_contacts"><span>Who may initiate</span></label>
+                            <select id="pp_initiative_contacts">
+                                <option value="active">Active chat character only</option>
+                                <option value="weighted">Prefer active (group-aware)</option>
+                                <option value="all">Any chat contact (not PhoneWave)</option>
+                            </select>
+                        </div>
+
+                        <div class="pp-settings-block">
+                            <label>
+                                <input id="pp_initiative_quiet" type="checkbox" />
+                                <span>Quiet hours (local clock)</span>
+                            </label>
+                        </div>
+                        <div class="pp-settings-block pp-initiative-quiet-only">
+                            <label for="pp_initiative_quiet_start"><span>Quiet from → until (hour)</span></label>
+                            <div class="flex-container flexGap5" style="align-items:center;flex-wrap:wrap;">
+                                <input id="pp_initiative_quiet_start" type="number" class="text_pole" min="0" max="23" step="1" style="max-width:4em;" />
+                                <span>→</span>
+                                <input id="pp_initiative_quiet_end" type="number" class="text_pole" min="0" max="23" step="1" style="max-width:4em;" />
+                            </div>
+                            <small>Example 23 → 8 blocks overnight. Wraps past midnight.</small>
+                        </div>
+
+                        <div class="pp-settings-block">
+                            <label for="pp_initiative_guidance"><span>Default mood / topic hint</span></label>
+                            <textarea id="pp_initiative_guidance" class="text_pole" rows="2" spellcheck="true" placeholder="Optional — leave blank for a natural check-in"></textarea>
+                            <small>Fed as <code>{{guidance}}</code>. Keep short; characters should not quote it.</small>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label>
+                                <input id="pp_initiative_use_force" type="checkbox" />
+                                <span>Reuse Forced mail prompt</span>
+                            </label>
+                            <small>When on, initiative ignores the template below and uses Mail generation → Forced mail prompt.</small>
+                        </div>
+                        <div class="pp-settings-block pp-initiative-prompt-only">
+                            <label for="pp_initiative_prompt"><span>Initiative prompt</span></label>
+                            <textarea id="pp_initiative_prompt" class="text_pole" rows="10" spellcheck="false"></textarea>
+                            <small>
+                                Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{guidance}}</code>
+                                <code>{{subject}}</code> <code>{{char_card}}</code> <code>{{chat_summary}}</code>
+                            </small>
+                            <div style="margin-top:0.4em;">
+                                <button id="pp_initiative_prompt_reset" class="menu_button" type="button">Reset initiative prompt</button>
+                            </div>
+                        </div>
+                        <div class="pp-settings-block">
+                            <button id="pp_initiative_test" class="menu_button" type="button">Send initiative now</button>
+                            <small>Bypasses chance / idle / grace / quiet hours; still respects unread and contact rules.</small>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <details class="pp-drawer-cat">
+                <summary>D-Mail</summary>
+                <div class="pp-drawer-cat-body">
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_inject_worldline" type="checkbox" />
+                            <span>Inject worldline after D-Mail</span>
+                        </label>
+                        <small>
+                            Same as phone Settings → D-Mail → Worldline overlay.
+                            Full tier controls (Spectacle / Propose / Apply) live on the handset.
+                        </small>
+                    </div>
+                </div>
+            </details>
+
+            <details class="pp-drawer-cat">
+                <summary>Actions &amp; help</summary>
+                <div class="pp-drawer-cat-body">
+                    <div class="pp-settings-block">
+                        <button id="pp_open_phone_btn" class="menu_button" type="button">Open phone</button>
+                        <button id="pp_test_mail_btn" class="menu_button" type="button">Test mail</button>
+                    </div>
+                    <p class="pp-settings-block">
+                        <code>/phone</code> · <code>/mail</code> · <code>/mailsend subject=…</code> ·
+                        <code>send_email</code> tool · <code>&lt;email&gt;</code> tags
+                    </p>
+                </div>
+            </details>
+
         </div>
     </div>
 </div>

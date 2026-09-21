@@ -1,4 +1,4 @@
-import { MODULE_NAME, EXTENSION_FOLDER, LEGACY_EXTENSION_FOLDER, DEFAULT_SETTINGS, DEFAULT_MAIL_REPLY_PROMPT, DEFAULT_MAIL_FORCE_PROMPT, DEFAULT_MAIL_MEMORY_PROMPT, DEFAULT_MAIL_MEMORY_ENTRY, DEFAULT_MAIL_SEND_INSTRUCTIONS } from './lib/constants.js';
+import { MODULE_NAME, EXTENSION_FOLDER, LEGACY_EXTENSION_FOLDER, DEFAULT_SETTINGS, DEFAULT_MAIL_REPLY_PROMPT, DEFAULT_MAIL_FORCE_PROMPT, DEFAULT_MAIL_INITIATIVE_PROMPT, DEFAULT_MAIL_MEMORY_PROMPT, DEFAULT_MAIL_MEMORY_ENTRY, DEFAULT_MAIL_SEND_INSTRUCTIONS } from './lib/constants.js';
 import { getSettings, saveSettings, getContext, toast } from './lib/settings.js';
 import {
     initPhoneChrome,
@@ -24,6 +24,12 @@ import {
 import { getActiveCharacterName } from './lib/store.js';
 import { ensureNotifyHost } from './lib/notify.js';
 import { updateWorldlinePrompt } from './lib/dmail.js';
+import {
+    syncInitiativeScheduler,
+    noteInitiativeActivity,
+    setInitiativeGenerationBusy,
+    tryInitiativeMail,
+} from './lib/initiative.js';
 
 const LOG = `[${MODULE_NAME}]`;
 
@@ -55,9 +61,45 @@ function bindSettingsUi() {
     $('#pp_mail_delay_max').val(s.mailReplyDelayMax ?? 8);
     $('#pp_mail_reply_prompt').val(s.mailReplyPrompt || DEFAULT_MAIL_REPLY_PROMPT);
     $('#pp_mail_force_prompt').val(s.mailForcePrompt || DEFAULT_MAIL_FORCE_PROMPT);
+
+    $('#pp_initiative_enabled').prop('checked', Boolean(s.mailInitiativeEnabled));
+    $('#pp_initiative_interval_min').val(s.mailInitiativeIntervalMin ?? 180);
+    $('#pp_initiative_interval_max').val(s.mailInitiativeIntervalMax ?? 480);
+    $('#pp_initiative_chance').val(Math.round(clampChancePct(s.mailInitiativeChance)));
+    $('#pp_initiative_grace').val(s.mailInitiativeStartupGraceSec ?? 90);
+    $('#pp_initiative_cooldown').val(s.mailInitiativeCooldownSec ?? 300);
+    $('#pp_initiative_max_hour').val(s.mailInitiativeMaxPerHour ?? 2);
+    $('#pp_initiative_max_day').val(s.mailInitiativeMaxPerDay ?? 6);
+    $('#pp_initiative_max_pending').val(s.mailInitiativeMaxPending ?? 1);
+    $('#pp_initiative_idle').prop('checked', s.mailInitiativeOnlyWhenIdle !== false);
+    $('#pp_initiative_idle_sec').val(s.mailInitiativeIdleSeconds ?? 60);
+    $('#pp_initiative_pause_gen').prop('checked', s.mailInitiativePauseDuringGeneration !== false);
+    $('#pp_initiative_pause_phone').prop('checked', s.mailInitiativePauseWhilePhoneOpen !== false);
+    $('#pp_initiative_tab').prop('checked', s.mailInitiativeRequireTabVisible !== false);
+    $('#pp_initiative_skip_unread').prop('checked', Boolean(s.mailInitiativeSkipIfUnread));
+    $('#pp_initiative_skip_unread_sender').prop('checked', s.mailInitiativeSkipIfUnreadFromSender !== false);
+    $('#pp_initiative_contacts').val(
+        ['active', 'all', 'weighted'].includes(s.mailInitiativeContacts) ? s.mailInitiativeContacts : 'active',
+    );
+    $('#pp_initiative_quiet').prop('checked', Boolean(s.mailInitiativeQuietHoursEnabled));
+    $('#pp_initiative_quiet_start').val(s.mailInitiativeQuietStart ?? 23);
+    $('#pp_initiative_quiet_end').val(s.mailInitiativeQuietEnd ?? 8);
+    $('#pp_initiative_guidance').val(s.mailInitiativeGuidance || '');
+    $('#pp_initiative_use_force').prop('checked', Boolean(s.mailInitiativeUseForcePrompt));
+    $('#pp_initiative_prompt').val(s.mailInitiativePrompt || DEFAULT_MAIL_INITIATIVE_PROMPT);
+
     syncOpenRouterFields();
     syncInjectFields();
     syncChipFields();
+    syncInitiativeFields();
+}
+
+function clampChancePct(chance) {
+    const n = Number(chance);
+    if (!Number.isFinite(n)) {
+        return 25;
+    }
+    return Math.max(0, Math.min(100, n <= 1 ? n * 100 : n));
 }
 
 function syncOpenRouterFields() {
@@ -75,6 +117,17 @@ function syncInjectFields() {
 function syncChipFields() {
     const showChip = Boolean($('#pp_show_chip').prop('checked'));
     $('.pp-chip-only').toggle(showChip);
+}
+
+function syncInitiativeFields() {
+    const on = Boolean($('#pp_initiative_enabled').prop('checked'));
+    $('.pp-initiative-only').toggle(on);
+    const idle = Boolean($('#pp_initiative_idle').prop('checked'));
+    $('.pp-initiative-idle-only').toggle(on && idle);
+    const quiet = Boolean($('#pp_initiative_quiet').prop('checked'));
+    $('.pp-initiative-quiet-only').toggle(on && quiet);
+    const useForce = Boolean($('#pp_initiative_use_force').prop('checked'));
+    $('.pp-initiative-prompt-only').toggle(on && !useForce);
 }
 
 function onToggle(key, selector, after) {
@@ -125,6 +178,7 @@ async function loadSettingsPanel() {
         if (!s.enabled && isPhoneOpen()) {
             closePhone();
         }
+        syncInitiativeScheduler();
     });
     onToggle('showMailChip', '#pp_show_chip', () => {
         syncChipFields();
@@ -294,6 +348,116 @@ async function loadSettingsPanel() {
         toast('Forced mail prompt reset', 'info');
     });
 
+    // —— Character initiative ——
+    onToggle('mailInitiativeEnabled', '#pp_initiative_enabled', () => {
+        syncInitiativeFields();
+        syncInitiativeScheduler();
+    });
+    const clampInitiativeInt = (selector, key, min, max, fallback, after) => {
+        $(selector).on('change', () => {
+            const s = getSettings();
+            let n = Number($(selector).val());
+            if (!Number.isFinite(n)) {
+                n = fallback;
+            }
+            n = Math.max(min, Math.min(max, Math.floor(n)));
+            s[key] = n;
+            $(selector).val(n);
+            saveSettings();
+            if (typeof after === 'function') {
+                after(s);
+            }
+        });
+    };
+    const restartInitiative = () => syncInitiativeScheduler();
+    const clampInitiativePair = () => {
+        const s = getSettings();
+        let min = Number($('#pp_initiative_interval_min').val());
+        let max = Number($('#pp_initiative_interval_max').val());
+        if (!Number.isFinite(min) || min < 30) {
+            min = 30;
+        }
+        if (!Number.isFinite(max) || max < min) {
+            max = min;
+        }
+        s.mailInitiativeIntervalMin = Math.floor(min);
+        s.mailInitiativeIntervalMax = Math.floor(max);
+        $('#pp_initiative_interval_min').val(s.mailInitiativeIntervalMin);
+        $('#pp_initiative_interval_max').val(s.mailInitiativeIntervalMax);
+        saveSettings();
+        restartInitiative();
+    };
+    $('#pp_initiative_interval_min').on('change', clampInitiativePair);
+    $('#pp_initiative_interval_max').on('change', clampInitiativePair);
+    $('#pp_initiative_chance').on('change', () => {
+        const s = getSettings();
+        let pct = Number($('#pp_initiative_chance').val());
+        if (!Number.isFinite(pct)) {
+            pct = 25;
+        }
+        pct = Math.max(0, Math.min(100, Math.round(pct)));
+        s.mailInitiativeChance = pct / 100;
+        $('#pp_initiative_chance').val(pct);
+        saveSettings();
+    });
+    clampInitiativeInt('#pp_initiative_grace', 'mailInitiativeStartupGraceSec', 0, 3600, 90, restartInitiative);
+    clampInitiativeInt('#pp_initiative_cooldown', 'mailInitiativeCooldownSec', 0, 7200, 300);
+    clampInitiativeInt('#pp_initiative_max_hour', 'mailInitiativeMaxPerHour', 0, 60, 2);
+    clampInitiativeInt('#pp_initiative_max_day', 'mailInitiativeMaxPerDay', 0, 200, 6);
+    clampInitiativeInt('#pp_initiative_max_pending', 'mailInitiativeMaxPending', 0, 5, 1);
+    onToggle('mailInitiativeOnlyWhenIdle', '#pp_initiative_idle', () => syncInitiativeFields());
+    clampInitiativeInt('#pp_initiative_idle_sec', 'mailInitiativeIdleSeconds', 0, 3600, 60);
+    onToggle('mailInitiativePauseDuringGeneration', '#pp_initiative_pause_gen');
+    onToggle('mailInitiativePauseWhilePhoneOpen', '#pp_initiative_pause_phone');
+    onToggle('mailInitiativeRequireTabVisible', '#pp_initiative_tab');
+    onToggle('mailInitiativeSkipIfUnread', '#pp_initiative_skip_unread');
+    onToggle('mailInitiativeSkipIfUnreadFromSender', '#pp_initiative_skip_unread_sender');
+    $('#pp_initiative_contacts').on('change', () => {
+        const s = getSettings();
+        const v = String($('#pp_initiative_contacts').val() || 'active');
+        s.mailInitiativeContacts = ['active', 'all', 'weighted'].includes(v) ? v : 'active';
+        saveSettings();
+    });
+    onToggle('mailInitiativeQuietHoursEnabled', '#pp_initiative_quiet', () => syncInitiativeFields());
+    clampInitiativeInt('#pp_initiative_quiet_start', 'mailInitiativeQuietStart', 0, 23, 23);
+    clampInitiativeInt('#pp_initiative_quiet_end', 'mailInitiativeQuietEnd', 0, 23, 8);
+    $('#pp_initiative_guidance').on('input', () => {
+        const s = getSettings();
+        s.mailInitiativeGuidance = String($('#pp_initiative_guidance').val() || '');
+        saveSettings();
+    });
+    onToggle('mailInitiativeUseForcePrompt', '#pp_initiative_use_force', () => syncInitiativeFields());
+    $('#pp_initiative_prompt').on('input', () => {
+        const s = getSettings();
+        const value = String($('#pp_initiative_prompt').val() || '').trim();
+        s.mailInitiativePrompt = value || DEFAULT_MAIL_INITIATIVE_PROMPT;
+        saveSettings();
+    });
+    $('#pp_initiative_prompt_reset').on('click', () => {
+        const s = getSettings();
+        s.mailInitiativePrompt = DEFAULT_MAIL_INITIATIVE_PROMPT;
+        $('#pp_initiative_prompt').val(DEFAULT_MAIL_INITIATIVE_PROMPT);
+        saveSettings();
+        toast('Initiative prompt reset', 'info');
+    });
+    $('#pp_initiative_test').on('click', async () => {
+        const btn = /** @type {HTMLButtonElement | null} */ ($('#pp_initiative_test').get(0));
+        if (btn) {
+            btn.disabled = true;
+        }
+        try {
+            await tryInitiativeMail({
+                bypassChance: true,
+                bypassIdle: true,
+                bypassQuiet: true,
+            });
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+            }
+        }
+    });
+
     $('#pp_open_phone_btn').on('click', () => openPhone());
     $('#pp_test_mail_btn').on('click', async () => {
         await receiveEmail({
@@ -459,6 +623,8 @@ function registerEvents() {
         if (getSettings().dmailWorldline !== false) {
             updateWorldlinePrompt();
         }
+        noteInitiativeActivity();
+        syncInitiativeScheduler();
     });
 
     eventSource.on(event_types.CHAT_CHANGED, () => {
@@ -467,9 +633,12 @@ function registerEvents() {
             updateWorldlinePrompt();
         }
         refreshIfOpen();
+        noteInitiativeActivity();
+        syncInitiativeScheduler();
     });
 
     eventSource.on(event_types.MESSAGE_RECEIVED, async (messageId) => {
+        noteInitiativeActivity();
         try {
             await ingestEmailsFromMessage(messageId);
             refreshIfOpen();
@@ -477,6 +646,13 @@ function registerEvents() {
             console.error(LOG, 'ingestEmailsFromMessage failed', err);
         }
     });
+
+    if (event_types.MESSAGE_SENT) {
+        eventSource.on(event_types.MESSAGE_SENT, () => noteInitiativeActivity());
+    }
+    if (event_types.USER_MESSAGE_RENDERED) {
+        eventSource.on(event_types.USER_MESSAGE_RENDERED, () => noteInitiativeActivity());
+    }
 
     // Refresh per-character mail injection before a generation when possible
     const refreshSpeakerMemory = (...args) => {
@@ -488,7 +664,10 @@ function registerEvents() {
         }
     };
     if (event_types.GENERATION_STARTED) {
-        eventSource.on(event_types.GENERATION_STARTED, refreshSpeakerMemory);
+        eventSource.on(event_types.GENERATION_STARTED, (...args) => {
+            setInitiativeGenerationBusy(true);
+            refreshSpeakerMemory(...args);
+        });
     }
     if (event_types.GENERATION_AFTER_COMMANDS) {
         eventSource.on(event_types.GENERATION_AFTER_COMMANDS, refreshSpeakerMemory);
@@ -496,10 +675,19 @@ function registerEvents() {
     if (event_types.GROUP_WRAPPER) {
         eventSource.on(event_types.GROUP_WRAPPER, refreshSpeakerMemory);
     }
-
+    const clearGenBusy = () => setInitiativeGenerationBusy(false);
+    if (event_types.GENERATION_ENDED) {
+        eventSource.on(event_types.GENERATION_ENDED, clearGenBusy);
+    }
+    if (event_types.GENERATION_STOPPED) {
+        eventSource.on(event_types.GENERATION_STOPPED, clearGenBusy);
+    }
     // Some ST versions emit CHARACTER_MESSAGE_RENDERED after DOM paint
     if (event_types.CHARACTER_MESSAGE_RENDERED) {
-        eventSource.on(event_types.CHARACTER_MESSAGE_RENDERED, () => refreshIfOpen());
+        eventSource.on(event_types.CHARACTER_MESSAGE_RENDERED, () => {
+            clearGenBusy();
+            refreshIfOpen();
+        });
     }
 }
 
@@ -539,6 +727,9 @@ jQuery(async () => {
     // Retry wand item — menu may mount late
     setTimeout(updateWandItem, 1500);
 
+    noteInitiativeActivity();
+    syncInitiativeScheduler();
+
     console.log(LOG, 'loaded');
 });
 
@@ -550,4 +741,6 @@ export function onActivate() {
     if (getSettings().dmailWorldline !== false) {
         updateWorldlinePrompt();
     }
+    noteInitiativeActivity();
+    syncInitiativeScheduler();
 }
