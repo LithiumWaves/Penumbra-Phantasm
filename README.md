@@ -8,7 +8,7 @@ SillyTavern extension that recreates the Steins;Gate **Phone Trigger** loop: ope
 - **Handset chassis** — red / silver / black keitai styled after Okabe’s phone
 - **Mobile** — `<dialog showModal()>` top layer + scale-to-fit (S25 Ultra–safe)
 - **Mail** — inbox / outbox / read / compose; optional tap-to-reply phrases
-- **D-Mail** — permanent contact **PhoneWave (name subject to change)**; send plays `lib/vid/divmeter.mp4` (end distortion), records the mail, and injects a quiet worldline fact into chat (no AI reply)
+- **D-Mail** — permanent contact **PhoneWave (name subject to change)**; in-phone Settings → D-Mail toggles Spectacle / Worldline overlay / Propose / Apply; send plays `lib/vid/divmeter.mp4` (end distortion) when Spectacle is on
 - **Notifications** — Steins;Gate-styled mail alerts + chip unread badge
 - **Send animation** — compose shows an e-mail-client send sequence
 - **Wallpaper & sounds** — presets or custom URLs

@@ -35,7 +35,7 @@ function bindSettingsUi() {
     $('#pp_slash').prop('checked', s.enableSlashCommand);
     $('#pp_sound').prop('checked', s.soundEnabled);
     $('#pp_inject').prop('checked', s.injectPrompt);
-    $('#pp_inject_worldline').prop('checked', s.injectWorldline !== false);
+    $('#pp_inject_worldline').prop('checked', s.dmailWorldline !== false);
     $('#pp_mail_memory_scope').val(s.mailMemoryScope === 'all' ? 'all' : 'speaker');
     $('#pp_mail_memory_max').val(s.mailMemoryMax ?? 6);
     $('#pp_mail_memory_preview').val(s.mailMemoryPreviewLength ?? 140);
@@ -131,8 +131,10 @@ async function loadSettingsPanel() {
         syncInjectFields();
         updateMailPrompt();
     });
-    onToggle('injectWorldline', '#pp_inject_worldline', (s) => {
-        if (s.injectWorldline === false) {
+    onToggle('dmailWorldline', '#pp_inject_worldline', (s) => {
+        s.injectWorldline = s.dmailWorldline !== false;
+        saveSettings();
+        if (s.dmailWorldline === false) {
             try {
                 const ctx = getContext();
                 ctx.setExtensionPrompt?.('phone_trigger_worldline', '', 1, 0);
@@ -444,14 +446,14 @@ function registerEvents() {
         updateFabVisibility();
         updateWandItem();
         updateMailPrompt();
-        if (getSettings().injectWorldline !== false) {
+        if (getSettings().dmailWorldline !== false) {
             updateWorldlinePrompt();
         }
     });
 
     eventSource.on(event_types.CHAT_CHANGED, () => {
         updateMailPrompt();
-        if (getSettings().injectWorldline !== false) {
+        if (getSettings().dmailWorldline !== false) {
             updateWorldlinePrompt();
         }
         refreshIfOpen();
@@ -519,7 +521,7 @@ jQuery(async () => {
     registerSlashCommands();
     registerEvents();
     updateMailPrompt();
-    if (getSettings().injectWorldline !== false) {
+    if (getSettings().dmailWorldline !== false) {
         updateWorldlinePrompt();
     }
     updateWandItem();
@@ -535,7 +537,7 @@ export function onActivate() {
     initPhoneChrome();
     updateFabVisibility();
     updateMailPrompt();
-    if (getSettings().injectWorldline !== false) {
+    if (getSettings().dmailWorldline !== false) {
         updateWorldlinePrompt();
     }
 }
