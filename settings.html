@@ -130,18 +130,55 @@
             </details>
 
             <details class="pp-drawer-cat">
-                <summary>Chat → mail</summary>
+                <summary>Chat → mail / call</summary>
                 <div class="pp-drawer-cat-body">
+                    <p class="pp-drawer-lead">
+                        Master switches for story context fed into independent mail and call prompts.
+                        Fine-tune which messages, e-mails, or call summaries on the phone
+                        <strong>Inject context</strong> screen (Mail / Settings).
+                    </p>
                     <div class="pp-settings-block">
                         <label>
                             <input id="pp_inject_chat_mail" type="checkbox" />
-                            <span>Inject main chat summary into email prompt</span>
+                            <span>Inject chat into email prompt</span>
                         </label>
                         <small>Gives mail replies story awareness via <code>{{chat_summary}}</code>.</small>
                     </div>
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_inject_chat_call" type="checkbox" />
+                            <span>Inject chat into call prompt</span>
+                        </label>
+                        <small>Same idea for live calls (<code>{{chat_summary}}</code>).</small>
+                    </div>
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_inject_mail_call" type="checkbox" />
+                            <span>Inject e-mails into call prompt</span>
+                        </label>
+                        <small>Wire mail memory into calls via <code>{{mail_context}}</code>.</small>
+                    </div>
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_inject_callmem_mail" type="checkbox" />
+                            <span>Inject call memory into email prompt</span>
+                        </label>
+                        <small>Prior call summaries via <code>{{call_memory}}</code>.</small>
+                    </div>
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_inject_callmem_call" type="checkbox" />
+                            <span>Inject prior calls into call prompt</span>
+                        </label>
+                        <small>Earlier call memory on the current line via <code>{{call_memory}}</code>.</small>
+                    </div>
                     <div class="pp-settings-block pp-chat-summary-only">
-                        <label for="pp_chat_summary_n"><span>Chat messages in mail summary</span></label>
+                        <label for="pp_chat_summary_n"><span>Chat messages in auto summary</span></label>
                         <input id="pp_chat_summary_n" type="number" class="text_pole" min="1" max="40" step="1" style="max-width:5em;" />
+                    </div>
+                    <div class="pp-settings-block">
+                        <label for="pp_call_mail_max"><span>E-mails in auto call context</span></label>
+                        <input id="pp_call_mail_max" type="number" class="text_pole" min="1" max="40" step="1" style="max-width:5em;" />
                     </div>
                 </div>
             </details>
@@ -179,6 +216,7 @@
                         <small>
                             Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{subject}}</code>
                             <code>{{body}}</code> <code>{{char_card}}</code> <code>{{chat_summary}}</code>
+                            <code>{{call_memory}}</code>
                             <code>{{description}}</code> <code>{{personality}}</code> <code>{{scenario}}</code>
                         </small>
                         <div style="margin-top:0.4em;">
@@ -192,6 +230,7 @@
                             Used when receiving guided mail from the inbox signal control.
                             Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{guidance}}</code>
                             <code>{{subject}}</code> <code>{{char_card}}</code> <code>{{chat_summary}}</code>
+                            <code>{{call_memory}}</code>
                         </small>
                         <div style="margin-top:0.4em;">
                             <button id="pp_mail_force_reset" class="menu_button" type="button">Reset force prompt</button>
@@ -337,6 +376,7 @@
                             <small>
                                 Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{guidance}}</code>
                                 <code>{{subject}}</code> <code>{{char_card}}</code> <code>{{chat_summary}}</code>
+                                <code>{{call_memory}}</code>
                             </small>
                             <div style="margin-top:0.4em;">
                                 <button id="pp_initiative_prompt_reset" class="menu_button" type="button">Reset initiative prompt</button>
@@ -399,7 +439,7 @@
                             <small>
                                 Placeholders: <code>{{char}}</code> <code>{{user}}</code> <code>{{transcript}}</code>
                                 <code>{{last_user}}</code> <code>{{guidance}}</code> <code>{{char_card}}</code>
-                                <code>{{chat_summary}}</code>
+                                <code>{{chat_summary}}</code> <code>{{mail_context}}</code> <code>{{call_memory}}</code>
                             </small>
                             <div style="margin-top:0.4em;">
                                 <button id="pp_call_prompt_reset" class="menu_button" type="button">Reset call prompt</button>

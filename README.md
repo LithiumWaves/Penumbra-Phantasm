@@ -21,7 +21,7 @@ SillyTavern extension that recreates the Steins;Gate **Phone Trigger** loop: ope
 - **User → character** — compose in-phone or `/mailsend`
 - **Independent replies** — mail generation uses raw/OpenRouter (not the active chat turn), with a configurable delay and editable prompt template
 - **Active-chat To:** — PhoneWave plus group members (or the solo chat character) appear in compose
-- **Context toggles** — optional chat→mail summary; optional mail→chat memory with a phone **Memory** picker per character; optional worldline inject after D-Mail
+- **Context toggles** — optional chat→mail / chat→call / mail→call / call-memory→mail&call; phone **Inject context** picker for which chat lines, e-mails, or call summaries feed generation; optional mail→chat memory with a phone **Memory** picker per character; optional worldline inject after D-Mail
 - **Guided receive** — faint signal bars on Inbox open a From / Guide panel to force inbound mail
 
 ## Install
@@ -51,7 +51,7 @@ Body
 </email>
 ```
 
-Mail replies are generated independently of the main chat character (To: contact card + editable prompt). A short delay (default 3–8s) runs before the reply arrives. Optional chat→mail summary keeps replies story-aware; optional mail→chat injection can be limited to the speaking character so group members do not share private mail.
+Mail replies are generated independently of the main chat character (To: contact card + editable prompt). A short delay (default 3–8s) runs before the reply arrives. Optional chat→mail summary keeps replies story-aware; optional mail→chat injection can be limited to the speaking character so group members do not share private mail. Use **Inject context** on the phone (Mail or Settings) to pick which chat lines and call summaries feed mail generation, and which chat lines, e-mails, and prior calls feed call generation (Auto / Manual / Off per source).
 
 Mail to **PhoneWave (name subject to change)** is a D-Mail: no character reply. **Spectacle** plays the divergence meter cutscene (video + audio) in the browser top layer and does not create worldline facts. **Propose** opens an edit gate before writers run. **Worldline (soft)** injects facts into the LLM prompt only; **Apply (hard)** optionally confirms a lorebook write and/or a smooth character-card rewrite. Soft and hard can both be on; Propose delays writers until you confirm. Compose shows sender/participants, selectable past context, **36-character ASCII** limit (on by default), **redirect phone** (own inbox vs character mail memory), and optional **arrival datetime**. Deliveries are always **three split parts** (e.g. 36 → 12+12+12). Character-routed D-Mails land in that character’s Mail memory and stay unchecked by default. They stay out of the Outbox unless **Show in outbox** is enabled.
 
@@ -61,7 +61,7 @@ Optional VN-style unsolicited mail (Extensions drawer → **Character initiative
 
 ### Calls
 
-Calls live in the phone UI: green ☎ → pick a contact → talk in the call screen. Generation mode can be **unique call prompt**, **main chat completion presets** (`generateQuietPrompt`), or **both** (presets + full call template). Optional **Call initiative** rings you with mail-style throttling. Hang up with red ☎ or soft **End**.
+Calls live in the phone UI: green ☎ → pick a contact → talk in the call screen. Generation mode can be **unique call prompt**, **main chat completion presets** (`generateQuietPrompt`), or **both** (presets + full call template). Optional **Call initiative** rings you with mail-style throttling. Hang up with red ☎ or soft **End**. Call prompts can include selected chat, mail (`{{mail_context}}`), and prior call memory (`{{call_memory}}`).
 
 Mail is stored in chat metadata. Wallpaper / sounds / reply prompt are extension settings.
 

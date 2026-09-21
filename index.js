@@ -58,7 +58,12 @@ function bindSettingsUi() {
     $('#pp_mail_memory_entry').val(s.mailMemoryEntryTemplate || DEFAULT_MAIL_MEMORY_ENTRY);
     $('#pp_mail_memory_send').val(s.mailMemorySendInstructions ?? DEFAULT_MAIL_SEND_INSTRUCTIONS);
     $('#pp_inject_chat_mail').prop('checked', s.injectChatIntoMail !== false);
+    $('#pp_inject_chat_call').prop('checked', s.injectChatIntoCall !== false);
+    $('#pp_inject_mail_call').prop('checked', s.injectMailIntoCall !== false);
+    $('#pp_inject_callmem_mail').prop('checked', s.injectCallMemoryIntoMail !== false);
+    $('#pp_inject_callmem_call').prop('checked', s.injectCallMemoryIntoCall !== false);
     $('#pp_chat_summary_n').val(s.chatSummaryMessages ?? 12);
+    $('#pp_call_mail_max').val(s.callMailContextMax ?? 8);
     $('#pp_auto_open').prop('checked', s.autoOpenOnMail);
     $('#pp_notify_toast').prop('checked', s.notifyInChat);
     $('#pp_mail_backend').val(s.mailBackend || 'main');
@@ -153,9 +158,10 @@ function syncOpenRouterFields() {
 
 function syncInjectFields() {
     const injectMail = Boolean($('#pp_inject').prop('checked'));
-    const injectChat = Boolean($('#pp_inject_chat_mail').prop('checked'));
+    const injectChatMail = Boolean($('#pp_inject_chat_mail').prop('checked'));
+    const injectChatCall = Boolean($('#pp_inject_chat_call').prop('checked'));
     $('.pp-inject-mail-only').toggle(injectMail);
-    $('.pp-chat-summary-only').toggle(injectChat);
+    $('.pp-chat-summary-only').toggle(injectChatMail || injectChatCall);
 }
 
 function syncChipFields() {
@@ -328,6 +334,10 @@ async function loadSettingsPanel() {
         toast('Mail memory templates reset', 'info');
     });
     onToggle('injectChatIntoMail', '#pp_inject_chat_mail', () => syncInjectFields());
+    onToggle('injectChatIntoCall', '#pp_inject_chat_call', () => syncInjectFields());
+    onToggle('injectMailIntoCall', '#pp_inject_mail_call');
+    onToggle('injectCallMemoryIntoMail', '#pp_inject_callmem_mail');
+    onToggle('injectCallMemoryIntoCall', '#pp_inject_callmem_call');
     $('#pp_chat_summary_n').on('change', () => {
         const s = getSettings();
         let n = Number($('#pp_chat_summary_n').val());
@@ -339,6 +349,19 @@ async function loadSettingsPanel() {
         }
         s.chatSummaryMessages = Math.floor(n);
         $('#pp_chat_summary_n').val(s.chatSummaryMessages);
+        saveSettings();
+    });
+    $('#pp_call_mail_max').on('change', () => {
+        const s = getSettings();
+        let n = Number($('#pp_call_mail_max').val());
+        if (!Number.isFinite(n) || n < 1) {
+            n = 1;
+        }
+        if (n > 40) {
+            n = 40;
+        }
+        s.callMailContextMax = Math.floor(n);
+        $('#pp_call_mail_max').val(s.callMailContextMax);
         saveSettings();
     });
     onToggle('autoOpenOnMail', '#pp_auto_open');
