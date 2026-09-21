@@ -1,4 +1,4 @@
-import { MODULE_NAME, EXTENSION_FOLDER, DEFAULT_SETTINGS, DEFAULT_MAIL_REPLY_PROMPT, DEFAULT_MAIL_FORCE_PROMPT, DEFAULT_MAIL_MEMORY_PROMPT, DEFAULT_MAIL_MEMORY_ENTRY, DEFAULT_MAIL_SEND_INSTRUCTIONS } from './lib/constants.js';
+import { MODULE_NAME, EXTENSION_FOLDER, LEGACY_EXTENSION_FOLDER, DEFAULT_SETTINGS, DEFAULT_MAIL_REPLY_PROMPT, DEFAULT_MAIL_FORCE_PROMPT, DEFAULT_MAIL_MEMORY_PROMPT, DEFAULT_MAIL_MEMORY_ENTRY, DEFAULT_MAIL_SEND_INSTRUCTIONS } from './lib/constants.js';
 import { getSettings, saveSettings, getContext, toast } from './lib/settings.js';
 import {
     initPhoneChrome,
@@ -90,14 +90,24 @@ function onToggle(key, selector, after) {
 
 async function loadSettingsPanel() {
     try {
-        const html = await $.get(`${EXTENSION_FOLDER}/settings.html`);
+        let html = '';
+        try {
+            html = await $.get(`${EXTENSION_FOLDER}/settings.html`);
+        } catch {
+            html = await $.get(`${LEGACY_EXTENSION_FOLDER}/settings.html`);
+        }
         $('#extensions_settings2').append(html);
     } catch (err) {
         console.warn(LOG, 'Failed to load settings.html, trying alternate path', err);
         try {
             const ctx = getContext();
             if (typeof ctx.renderExtensionTemplateAsync === 'function') {
-                const html = await ctx.renderExtensionTemplateAsync('third-party/Penumbra-Phantasm', 'settings');
+                let html = '';
+                try {
+                    html = await ctx.renderExtensionTemplateAsync('third-party/Phone-Trigger', 'settings');
+                } catch {
+                    html = await ctx.renderExtensionTemplateAsync('third-party/Penumbra-Phantasm', 'settings');
+                }
                 $('#extensions_settings2').append(html);
             }
         } catch (err2) {
