@@ -404,7 +404,7 @@
 }
 
 .pp-view-home {
-    /* standby: wallpaper only */
+    position: relative;
 }
 
 .pp-vent-bar {
@@ -537,6 +537,120 @@
 
 .pp-call-answer { color: #7dcea0; }
 .pp-call-end { color: #e07070; }
+
+.pp-view-home .pp-home-call {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 10px;
+}
+
+.pp-view-call {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.pp-call-header {
+    flex-shrink: 0;
+    padding: 8px 10px 6px;
+    border-bottom: 1px solid rgba(120, 150, 180, 0.25);
+    text-align: center;
+}
+
+.pp-call-peer {
+    font-weight: 700;
+    font-size: 13px;
+    color: #e8f0ff;
+}
+
+.pp-call-status {
+    margin-top: 2px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    color: #9ec4e8;
+}
+
+.pp-call-log {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 8px 8px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pp-call-sys {
+    text-align: center;
+    font-size: 10px;
+    opacity: 0.65;
+    padding: 4px 0;
+}
+
+.pp-call-bubble {
+    max-width: 92%;
+    padding: 6px 8px;
+    border-radius: 8px;
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.pp-call-me {
+    align-self: flex-end;
+    background: rgba(70, 120, 160, 0.35);
+    border: 1px solid rgba(120, 170, 210, 0.35);
+}
+
+.pp-call-them {
+    align-self: flex-start;
+    background: rgba(30, 40, 55, 0.75);
+    border: 1px solid rgba(100, 120, 140, 0.35);
+}
+
+.pp-call-who {
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.65;
+    margin-bottom: 2px;
+}
+
+.pp-call-text {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.pp-call-compose {
+    flex-shrink: 0;
+    padding: 6px 8px 8px;
+    border-top: 1px solid rgba(120, 150, 180, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.pp-call-compose textarea {
+    width: 100%;
+    resize: none;
+    box-sizing: border-box;
+    font: inherit;
+    font-size: 11px;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(100, 130, 160, 0.4);
+    background: rgba(8, 14, 22, 0.85);
+    color: #e8f0ff;
+}
+
+.pp-call-compose-idle {
+    align-items: stretch;
+}
+
+.pp-call-dial .pp-settings-note {
+    margin-bottom: 0.6rem;
+}
 
 .pp-keypad {
     display: flex;

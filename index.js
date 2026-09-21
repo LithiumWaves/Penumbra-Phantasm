@@ -1,4 +1,4 @@
-import { MODULE_NAME, EXTENSION_FOLDER, LEGACY_EXTENSION_FOLDER, DEFAULT_SETTINGS, DEFAULT_MAIL_REPLY_PROMPT, DEFAULT_MAIL_FORCE_PROMPT, DEFAULT_MAIL_INITIATIVE_PROMPT, DEFAULT_MAIL_MEMORY_PROMPT, DEFAULT_MAIL_MEMORY_ENTRY, DEFAULT_MAIL_SEND_INSTRUCTIONS } from './lib/constants.js';
+import { MODULE_NAME, EXTENSION_FOLDER, LEGACY_EXTENSION_FOLDER, DEFAULT_SETTINGS, DEFAULT_MAIL_REPLY_PROMPT, DEFAULT_MAIL_FORCE_PROMPT, DEFAULT_MAIL_INITIATIVE_PROMPT, DEFAULT_CALL_PROMPT, DEFAULT_MAIL_MEMORY_PROMPT, DEFAULT_MAIL_MEMORY_ENTRY, DEFAULT_MAIL_SEND_INSTRUCTIONS } from './lib/constants.js';
 import { getSettings, saveSettings, getContext, toast } from './lib/settings.js';
 import {
     initPhoneChrome,
@@ -88,10 +88,17 @@ function bindSettingsUi() {
     $('#pp_initiative_use_force').prop('checked', Boolean(s.mailInitiativeUseForcePrompt));
     $('#pp_initiative_prompt').val(s.mailInitiativePrompt || DEFAULT_MAIL_INITIATIVE_PROMPT);
 
+    $('#pp_call_enabled').prop('checked', s.callEnabled !== false);
+    $('#pp_call_dial_ms').val(s.callDialDelayMs ?? 900);
+    $('#pp_call_context').val(s.callContextTurns ?? 16);
+    $('#pp_call_guidance').val(s.callGuidance || '');
+    $('#pp_call_prompt').val(s.callPrompt || DEFAULT_CALL_PROMPT);
+
     syncOpenRouterFields();
     syncInjectFields();
     syncChipFields();
     syncInitiativeFields();
+    syncCallFields();
 }
 
 function clampChancePct(chance) {
@@ -128,6 +135,11 @@ function syncInitiativeFields() {
     $('.pp-initiative-quiet-only').toggle(on && quiet);
     const useForce = Boolean($('#pp_initiative_use_force').prop('checked'));
     $('.pp-initiative-prompt-only').toggle(on && !useForce);
+}
+
+function syncCallFields() {
+    const on = Boolean($('#pp_call_enabled').prop('checked'));
+    $('.pp-call-only').toggle(on);
 }
 
 function onToggle(key, selector, after) {
@@ -456,6 +468,49 @@ async function loadSettingsPanel() {
                 btn.disabled = false;
             }
         }
+    });
+
+    // —— Calls ——
+    onToggle('callEnabled', '#pp_call_enabled', () => syncCallFields());
+    $('#pp_call_dial_ms').on('change', () => {
+        const s = getSettings();
+        let n = Number($('#pp_call_dial_ms').val());
+        if (!Number.isFinite(n) || n < 0) {
+            n = 0;
+        }
+        n = Math.min(4000, Math.floor(n));
+        s.callDialDelayMs = n;
+        $('#pp_call_dial_ms').val(n);
+        saveSettings();
+    });
+    $('#pp_call_context').on('change', () => {
+        const s = getSettings();
+        let n = Number($('#pp_call_context').val());
+        if (!Number.isFinite(n)) {
+            n = 16;
+        }
+        n = Math.max(2, Math.min(40, Math.floor(n)));
+        s.callContextTurns = n;
+        $('#pp_call_context').val(n);
+        saveSettings();
+    });
+    $('#pp_call_guidance').on('input', () => {
+        const s = getSettings();
+        s.callGuidance = String($('#pp_call_guidance').val() || '');
+        saveSettings();
+    });
+    $('#pp_call_prompt').on('input', () => {
+        const s = getSettings();
+        const value = String($('#pp_call_prompt').val() || '').trim();
+        s.callPrompt = value || DEFAULT_CALL_PROMPT;
+        saveSettings();
+    });
+    $('#pp_call_prompt_reset').on('click', () => {
+        const s = getSettings();
+        s.callPrompt = DEFAULT_CALL_PROMPT;
+        $('#pp_call_prompt').val(DEFAULT_CALL_PROMPT);
+        saveSettings();
+        toast('Call prompt reset', 'info');
     });
 
     $('#pp_open_phone_btn').on('click', () => openPhone());
