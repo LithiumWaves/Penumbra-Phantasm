@@ -30,6 +30,12 @@ import {
     setInitiativeGenerationBusy,
     tryInitiativeMail,
 } from './lib/initiative.js';
+import {
+    syncCallInitiativeScheduler,
+    noteCallInitiativeActivity,
+    setCallInitiativeGenerationBusy,
+    tryCallInitiative,
+} from './lib/callInitiative.js';
 
 const LOG = `[${MODULE_NAME}]`;
 
@@ -89,16 +95,44 @@ function bindSettingsUi() {
     $('#pp_initiative_prompt').val(s.mailInitiativePrompt || DEFAULT_MAIL_INITIATIVE_PROMPT);
 
     $('#pp_call_enabled').prop('checked', s.callEnabled !== false);
+    $('#pp_call_mode').val(
+        ['unique', 'main', 'both'].includes(s.callGenerationMode) ? s.callGenerationMode : 'unique',
+    );
     $('#pp_call_dial_ms').val(s.callDialDelayMs ?? 900);
     $('#pp_call_context').val(s.callContextTurns ?? 16);
     $('#pp_call_guidance').val(s.callGuidance || '');
     $('#pp_call_prompt').val(s.callPrompt || DEFAULT_CALL_PROMPT);
+
+    $('#pp_call_initiative_enabled').prop('checked', Boolean(s.callInitiativeEnabled));
+    $('#pp_call_init_interval_min').val(s.callInitiativeIntervalMin ?? 240);
+    $('#pp_call_init_interval_max').val(s.callInitiativeIntervalMax ?? 600);
+    $('#pp_call_init_chance').val(Math.round(clampChancePct(s.callInitiativeChance ?? 0.2)));
+    $('#pp_call_init_grace').val(s.callInitiativeStartupGraceSec ?? 120);
+    $('#pp_call_init_cooldown').val(s.callInitiativeCooldownSec ?? 420);
+    $('#pp_call_init_max_hour').val(s.callInitiativeMaxPerHour ?? 1);
+    $('#pp_call_init_max_day').val(s.callInitiativeMaxPerDay ?? 4);
+    $('#pp_call_init_ring_timeout').val(s.callInitiativeRingTimeoutSec ?? 45);
+    $('#pp_call_init_idle').prop('checked', s.callInitiativeOnlyWhenIdle !== false);
+    $('#pp_call_init_idle_sec').val(s.callInitiativeIdleSeconds ?? 90);
+    $('#pp_call_init_pause_gen').prop('checked', s.callInitiativePauseDuringGeneration !== false);
+    $('#pp_call_init_pause_phone').prop('checked', Boolean(s.callInitiativePauseWhilePhoneOpen));
+    $('#pp_call_init_tab').prop('checked', s.callInitiativeRequireTabVisible !== false);
+    $('#pp_call_init_skip_busy').prop('checked', s.callInitiativeSkipIfBusy !== false);
+    $('#pp_call_init_auto_open').prop('checked', s.callInitiativeAutoOpen !== false);
+    $('#pp_call_init_contacts').val(
+        ['active', 'all', 'weighted'].includes(s.callInitiativeContacts) ? s.callInitiativeContacts : 'active',
+    );
+    $('#pp_call_init_quiet').prop('checked', Boolean(s.callInitiativeQuietHoursEnabled));
+    $('#pp_call_init_quiet_start').val(s.callInitiativeQuietStart ?? 23);
+    $('#pp_call_init_quiet_end').val(s.callInitiativeQuietEnd ?? 8);
+    $('#pp_dmail_sound').prop('checked', s.dmailSpectacleSound !== false);
 
     syncOpenRouterFields();
     syncInjectFields();
     syncChipFields();
     syncInitiativeFields();
     syncCallFields();
+    syncCallInitiativeFields();
 }
 
 function clampChancePct(chance) {
@@ -140,6 +174,16 @@ function syncInitiativeFields() {
 function syncCallFields() {
     const on = Boolean($('#pp_call_enabled').prop('checked'));
     $('.pp-call-only').toggle(on);
+}
+
+function syncCallInitiativeFields() {
+    const callsOn = Boolean($('#pp_call_enabled').prop('checked'));
+    const on = callsOn && Boolean($('#pp_call_initiative_enabled').prop('checked'));
+    $('.pp-call-initiative-only').toggle(on);
+    const idle = Boolean($('#pp_call_init_idle').prop('checked'));
+    $('.pp-call-init-idle-only').toggle(on && idle);
+    const quiet = Boolean($('#pp_call_init_quiet').prop('checked'));
+    $('.pp-call-init-quiet-only').toggle(on && quiet);
 }
 
 function onToggle(key, selector, after) {
@@ -191,6 +235,7 @@ async function loadSettingsPanel() {
             closePhone();
         }
         syncInitiativeScheduler();
+        syncCallInitiativeScheduler();
     });
     onToggle('showMailChip', '#pp_show_chip', () => {
         syncChipFields();
@@ -471,7 +516,17 @@ async function loadSettingsPanel() {
     });
 
     // —— Calls ——
-    onToggle('callEnabled', '#pp_call_enabled', () => syncCallFields());
+    onToggle('callEnabled', '#pp_call_enabled', () => {
+        syncCallFields();
+        syncCallInitiativeFields();
+        syncCallInitiativeScheduler();
+    });
+    $('#pp_call_mode').on('change', () => {
+        const s = getSettings();
+        const v = String($('#pp_call_mode').val() || 'unique');
+        s.callGenerationMode = ['unique', 'main', 'both'].includes(v) ? v : 'unique';
+        saveSettings();
+    });
     $('#pp_call_dial_ms').on('change', () => {
         const s = getSettings();
         let n = Number($('#pp_call_dial_ms').val());
@@ -512,6 +567,99 @@ async function loadSettingsPanel() {
         saveSettings();
         toast('Call prompt reset', 'info');
     });
+
+    // —— Call initiative ——
+    onToggle('callInitiativeEnabled', '#pp_call_initiative_enabled', () => {
+        syncCallInitiativeFields();
+        syncCallInitiativeScheduler();
+    });
+    const restartCallInitiative = () => syncCallInitiativeScheduler();
+    const clampCallInitPair = () => {
+        const s = getSettings();
+        let min = Number($('#pp_call_init_interval_min').val());
+        let max = Number($('#pp_call_init_interval_max').val());
+        if (!Number.isFinite(min) || min < 30) {
+            min = 30;
+        }
+        if (!Number.isFinite(max) || max < min) {
+            max = min;
+        }
+        s.callInitiativeIntervalMin = Math.floor(min);
+        s.callInitiativeIntervalMax = Math.floor(max);
+        $('#pp_call_init_interval_min').val(s.callInitiativeIntervalMin);
+        $('#pp_call_init_interval_max').val(s.callInitiativeIntervalMax);
+        saveSettings();
+        restartCallInitiative();
+    };
+    $('#pp_call_init_interval_min').on('change', clampCallInitPair);
+    $('#pp_call_init_interval_max').on('change', clampCallInitPair);
+    $('#pp_call_init_chance').on('change', () => {
+        const s = getSettings();
+        let pct = Number($('#pp_call_init_chance').val());
+        if (!Number.isFinite(pct)) {
+            pct = 20;
+        }
+        pct = Math.max(0, Math.min(100, Math.round(pct)));
+        s.callInitiativeChance = pct / 100;
+        $('#pp_call_init_chance').val(pct);
+        saveSettings();
+    });
+    const clampCallInitInt = (selector, key, min, max, fallback, after) => {
+        $(selector).on('change', () => {
+            const s = getSettings();
+            let n = Number($(selector).val());
+            if (!Number.isFinite(n)) {
+                n = fallback;
+            }
+            n = Math.max(min, Math.min(max, Math.floor(n)));
+            s[key] = n;
+            $(selector).val(n);
+            saveSettings();
+            if (typeof after === 'function') {
+                after(s);
+            }
+        });
+    };
+    clampCallInitInt('#pp_call_init_grace', 'callInitiativeStartupGraceSec', 0, 3600, 120, restartCallInitiative);
+    clampCallInitInt('#pp_call_init_cooldown', 'callInitiativeCooldownSec', 0, 7200, 420);
+    clampCallInitInt('#pp_call_init_max_hour', 'callInitiativeMaxPerHour', 0, 60, 1);
+    clampCallInitInt('#pp_call_init_max_day', 'callInitiativeMaxPerDay', 0, 200, 4);
+    clampCallInitInt('#pp_call_init_ring_timeout', 'callInitiativeRingTimeoutSec', 0, 300, 45);
+    onToggle('callInitiativeOnlyWhenIdle', '#pp_call_init_idle', () => syncCallInitiativeFields());
+    clampCallInitInt('#pp_call_init_idle_sec', 'callInitiativeIdleSeconds', 0, 3600, 90);
+    onToggle('callInitiativePauseDuringGeneration', '#pp_call_init_pause_gen');
+    onToggle('callInitiativePauseWhilePhoneOpen', '#pp_call_init_pause_phone');
+    onToggle('callInitiativeRequireTabVisible', '#pp_call_init_tab');
+    onToggle('callInitiativeSkipIfBusy', '#pp_call_init_skip_busy');
+    onToggle('callInitiativeAutoOpen', '#pp_call_init_auto_open');
+    $('#pp_call_init_contacts').on('change', () => {
+        const s = getSettings();
+        const v = String($('#pp_call_init_contacts').val() || 'active');
+        s.callInitiativeContacts = ['active', 'all', 'weighted'].includes(v) ? v : 'active';
+        saveSettings();
+    });
+    onToggle('callInitiativeQuietHoursEnabled', '#pp_call_init_quiet', () => syncCallInitiativeFields());
+    clampCallInitInt('#pp_call_init_quiet_start', 'callInitiativeQuietStart', 0, 23, 23);
+    clampCallInitInt('#pp_call_init_quiet_end', 'callInitiativeQuietEnd', 0, 23, 8);
+    $('#pp_call_initiative_test').on('click', async () => {
+        const btn = /** @type {HTMLButtonElement | null} */ ($('#pp_call_initiative_test').get(0));
+        if (btn) {
+            btn.disabled = true;
+        }
+        try {
+            await tryCallInitiative({
+                bypassChance: true,
+                bypassIdle: true,
+                bypassQuiet: true,
+            });
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+            }
+        }
+    });
+
+    onToggle('dmailSpectacleSound', '#pp_dmail_sound');
 
     $('#pp_open_phone_btn').on('click', () => openPhone());
     $('#pp_test_mail_btn').on('click', async () => {
@@ -679,7 +827,9 @@ function registerEvents() {
             updateWorldlinePrompt();
         }
         noteInitiativeActivity();
+        noteCallInitiativeActivity();
         syncInitiativeScheduler();
+        syncCallInitiativeScheduler();
     });
 
     eventSource.on(event_types.CHAT_CHANGED, () => {
@@ -689,11 +839,14 @@ function registerEvents() {
         }
         refreshIfOpen();
         noteInitiativeActivity();
+        noteCallInitiativeActivity();
         syncInitiativeScheduler();
+        syncCallInitiativeScheduler();
     });
 
     eventSource.on(event_types.MESSAGE_RECEIVED, async (messageId) => {
         noteInitiativeActivity();
+        noteCallInitiativeActivity();
         try {
             await ingestEmailsFromMessage(messageId);
             refreshIfOpen();
@@ -703,10 +856,16 @@ function registerEvents() {
     });
 
     if (event_types.MESSAGE_SENT) {
-        eventSource.on(event_types.MESSAGE_SENT, () => noteInitiativeActivity());
+        eventSource.on(event_types.MESSAGE_SENT, () => {
+            noteInitiativeActivity();
+            noteCallInitiativeActivity();
+        });
     }
     if (event_types.USER_MESSAGE_RENDERED) {
-        eventSource.on(event_types.USER_MESSAGE_RENDERED, () => noteInitiativeActivity());
+        eventSource.on(event_types.USER_MESSAGE_RENDERED, () => {
+            noteInitiativeActivity();
+            noteCallInitiativeActivity();
+        });
     }
 
     // Refresh per-character mail injection before a generation when possible
@@ -721,6 +880,7 @@ function registerEvents() {
     if (event_types.GENERATION_STARTED) {
         eventSource.on(event_types.GENERATION_STARTED, (...args) => {
             setInitiativeGenerationBusy(true);
+            setCallInitiativeGenerationBusy(true);
             refreshSpeakerMemory(...args);
         });
     }
@@ -730,7 +890,10 @@ function registerEvents() {
     if (event_types.GROUP_WRAPPER) {
         eventSource.on(event_types.GROUP_WRAPPER, refreshSpeakerMemory);
     }
-    const clearGenBusy = () => setInitiativeGenerationBusy(false);
+    const clearGenBusy = () => {
+        setInitiativeGenerationBusy(false);
+        setCallInitiativeGenerationBusy(false);
+    };
     if (event_types.GENERATION_ENDED) {
         eventSource.on(event_types.GENERATION_ENDED, clearGenBusy);
     }
@@ -783,7 +946,9 @@ jQuery(async () => {
     setTimeout(updateWandItem, 1500);
 
     noteInitiativeActivity();
+    noteCallInitiativeActivity();
     syncInitiativeScheduler();
+    syncCallInitiativeScheduler();
 
     console.log(LOG, 'loaded');
 });
@@ -797,5 +962,7 @@ export function onActivate() {
         updateWorldlinePrompt();
     }
     noteInitiativeActivity();
+    noteCallInitiativeActivity();
     syncInitiativeScheduler();
+    syncCallInitiativeScheduler();
 }

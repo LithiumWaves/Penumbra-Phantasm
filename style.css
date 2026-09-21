@@ -573,6 +573,24 @@
     color: #9ec4e8;
 }
 
+.pp-call-status.pp-call-ringing {
+    color: #7dcea0;
+    animation: pp-call-pulse 1s ease-in-out infinite;
+}
+
+@keyframes pp-call-pulse {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+}
+
+.pp-call-incoming {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 10px;
+    justify-content: center;
+}
+
 .pp-call-log {
     flex: 1 1 auto;
     min-height: 0;
