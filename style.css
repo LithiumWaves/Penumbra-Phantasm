@@ -930,6 +930,158 @@
     appearance: auto;
 }
 
+/* Themed contact picker — replaces native select */
+.pp-picker {
+    position: relative;
+    margin-top: 3px;
+}
+
+.pp-picker-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid rgba(158, 196, 255, 0.35);
+    border-radius: 3px;
+    background:
+        linear-gradient(180deg, rgba(18, 40, 72, 0.95), rgba(4, 14, 32, 0.98));
+    color: var(--pp-lcd-fg);
+    font: 600 11px/1.3 var(--pp-font);
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.pp-picker-btn:active,
+.pp-picker[data-open="1"] .pp-picker-btn {
+    border-color: var(--pp-accent);
+    background: rgba(158, 196, 255, 0.12);
+}
+
+.pp-picker-value {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #d7e6ff;
+}
+
+.pp-picker-caret {
+    color: var(--pp-accent);
+    font-size: 10px;
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+}
+
+.pp-picker[data-open="1"] .pp-picker-caret {
+    transform: rotate(-180deg);
+}
+
+.pp-picker-menu {
+    margin-top: 4px;
+    border: 1px solid rgba(158, 196, 255, 0.28);
+    border-radius: 3px;
+    background: #020814;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+    max-height: 132px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.pp-picker-option {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    border-bottom: 1px solid rgba(158, 196, 255, 0.1);
+    background: transparent;
+    color: var(--pp-lcd-fg);
+    font: 500 11px/1.3 var(--pp-font);
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.pp-picker-option:last-child {
+    border-bottom: none;
+}
+
+.pp-picker-option:hover,
+.pp-picker-option:active,
+.pp-picker-option.pp-picker-active {
+    background: rgba(158, 196, 255, 0.14);
+    color: #fff;
+}
+
+.pp-picker-option.pp-picker-active {
+    box-shadow: inset 2px 0 0 var(--pp-accent);
+}
+
+.pp-picker-empty {
+    padding: 10px;
+    color: var(--pp-lcd-dim);
+    font-size: 10px;
+    text-align: center;
+}
+
+.pp-settings-note {
+    margin: 0;
+    padding: 8px 10px 4px;
+    color: var(--pp-lcd-dim);
+    font: 500 9px/1.4 var(--pp-font);
+}
+
+.pp-settings-note strong {
+    color: var(--pp-accent);
+    font-weight: 700;
+}
+
+.pp-toggle-row {
+    align-items: flex-start;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.pp-toggle-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.pp-toggle-title {
+    font-weight: 700;
+    color: #d7e6ff;
+}
+
+.pp-toggle-blurb {
+    color: var(--pp-lcd-dim);
+    font-size: 9px;
+    line-height: 1.35;
+    font-weight: 500;
+}
+
+.pp-toggle-state {
+    margin-top: 2px;
+    min-width: 2.2em;
+    text-align: right;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+}
+
+.pp-toggle-on .pp-toggle-state {
+    color: var(--pp-unread);
+}
+
+.pp-toggle-row:not(.pp-toggle-on) .pp-toggle-state {
+    color: var(--pp-lcd-dim);
+}
+
 .pp-section {
     padding: 8px 10px 3px;
     color: var(--pp-accent);
