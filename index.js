@@ -24,6 +24,7 @@ import {
 import { getActiveCharacterName } from './lib/store.js';
 import { ensureNotifyHost } from './lib/notify.js';
 import { updateWorldlinePrompt } from './lib/dmail.js';
+import { updateCallMemoryPrompt } from './lib/callMemory.js';
 import {
     syncInitiativeScheduler,
     noteInitiativeActivity,
@@ -126,6 +127,8 @@ function bindSettingsUi() {
     $('#pp_call_init_quiet_start').val(s.callInitiativeQuietStart ?? 23);
     $('#pp_call_init_quiet_end').val(s.callInitiativeQuietEnd ?? 8);
     $('#pp_dmail_sound').prop('checked', s.dmailSpectacleSound !== false);
+    $('#pp_inject_call_memory').prop('checked', Boolean(s.injectCallMemory));
+    $('#pp_call_summarize').prop('checked', Boolean(s.callSummarizeOnEnd));
 
     syncOpenRouterFields();
     syncInjectFields();
@@ -507,6 +510,7 @@ async function loadSettingsPanel() {
                 bypassChance: true,
                 bypassIdle: true,
                 bypassQuiet: true,
+                bypassGeneration: true,
             });
         } finally {
             if (btn) {
@@ -651,6 +655,7 @@ async function loadSettingsPanel() {
                 bypassChance: true,
                 bypassIdle: true,
                 bypassQuiet: true,
+                bypassGeneration: true,
             });
         } finally {
             if (btn) {
@@ -660,6 +665,14 @@ async function loadSettingsPanel() {
     });
 
     onToggle('dmailSpectacleSound', '#pp_dmail_sound');
+    onToggle('injectCallMemory', '#pp_inject_call_memory', (st) => {
+        if (st.injectCallMemory) {
+            updateCallMemoryPrompt();
+        } else {
+            updateCallMemoryPrompt();
+        }
+    });
+    onToggle('callSummarizeOnEnd', '#pp_call_summarize');
 
     $('#pp_open_phone_btn').on('click', () => openPhone());
     $('#pp_test_mail_btn').on('click', async () => {
@@ -826,6 +839,9 @@ function registerEvents() {
         if (getSettings().dmailWorldline !== false) {
             updateWorldlinePrompt();
         }
+        if (getSettings().injectCallMemory) {
+            updateCallMemoryPrompt();
+        }
         noteInitiativeActivity();
         noteCallInitiativeActivity();
         syncInitiativeScheduler();
@@ -836,6 +852,9 @@ function registerEvents() {
         updateMailPrompt();
         if (getSettings().dmailWorldline !== false) {
             updateWorldlinePrompt();
+        }
+        if (getSettings().injectCallMemory) {
+            updateCallMemoryPrompt();
         }
         refreshIfOpen();
         noteInitiativeActivity();
@@ -940,6 +959,9 @@ jQuery(async () => {
     if (getSettings().dmailWorldline !== false) {
         updateWorldlinePrompt();
     }
+    if (getSettings().injectCallMemory) {
+        updateCallMemoryPrompt();
+    }
     updateWandItem();
 
     // Retry wand item — menu may mount late
@@ -960,6 +982,9 @@ export function onActivate() {
     updateMailPrompt();
     if (getSettings().dmailWorldline !== false) {
         updateWorldlinePrompt();
+    }
+    if (getSettings().injectCallMemory) {
+        updateCallMemoryPrompt();
     }
     noteInitiativeActivity();
     noteCallInitiativeActivity();

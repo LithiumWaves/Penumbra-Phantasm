@@ -538,7 +538,8 @@
                         <small>
                             Same as phone Settings → D-Mail → Worldline (soft) prompt inject.
                             Full tier controls live on the handset:
-                            Spectacle / Propose / Worldline (soft) / Apply (lorebook + card confirm).
+                            Spectacle / Propose / Worldline (soft) / Apply
+                            (optional lorebook picker + smooth card rewrite confirms).
                         </small>
                     </div>
                     <div class="pp-settings-block">
@@ -547,6 +548,26 @@
                             <span>Play cutscene audio</span>
                         </label>
                         <small>Unmutes <code>divmeter.mp4</code> so its embedded soundtrack plays (respects Sounds).</small>
+                    </div>
+                </div>
+            </details>
+
+            <details class="pp-drawer-cat">
+                <summary>Call memory</summary>
+                <div class="pp-drawer-cat-body">
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_inject_call_memory" type="checkbox" />
+                            <span>Inject call memory into chat</span>
+                        </label>
+                        <small>Same as phone Settings → Call memory. Summaries/transcripts of finished calls.</small>
+                    </div>
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_call_summarize" type="checkbox" />
+                            <span>Summarize calls on hang-up</span>
+                        </label>
+                        <small>LLM-compacts the transcript after each call (keeps summary, drops full turns).</small>
                     </div>
                 </div>
             </details>

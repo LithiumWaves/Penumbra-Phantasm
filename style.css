@@ -863,6 +863,34 @@
     word-break: break-word;
 }
 
+.pp-card-edit,
+.pp-select {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 4px 0 8px;
+    padding: 8px;
+    border: 1px solid rgba(158, 196, 255, 0.28);
+    border-radius: 4px;
+    background: rgba(6, 14, 28, 0.85);
+    color: #e8f0ff;
+    font: 500 11px/1.4 var(--pp-font);
+}
+
+.pp-card-edit {
+    min-height: 140px;
+    resize: vertical;
+}
+
+.pp-call-mem-row {
+    align-items: flex-start;
+}
+
+.pp-call-mem-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
 .pp-danger-btn {
     color: var(--pp-danger) !important;
     border-color: rgba(232, 93, 93, 0.55) !important;
