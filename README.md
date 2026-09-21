@@ -8,7 +8,7 @@ SillyTavern extension that recreates the Steins;Gate **Phone Trigger** loop: ope
 - **Handset chassis** — red keitai with working multi-tap keypad (T9-style Latin)
 - **Mobile** — `<dialog showModal()>` top layer + scale-to-fit (S25 Ultra–safe)
 - **Mail** — inbox / outbox / read / compose; optional tap-to-reply phrases; trash on open mail
-- **Calls** — Presence-less handset calls: dial a character and talk in the phone UI (not the main chat)
+- **Calls** — Presence-less handset calls: dial a character and talk in the phone UI (not the main chat); optional call initiative (incoming rings); generation via unique prompt, main chat presets, or both
 - **Character initiative** — optional VN-style unsolicited mail with interval, chance, idle, caps, quiet hours, and contact rules (off by default)
 - **D-Mail** — permanent contact **PhoneWave (name subject to change)** (hideable); Spectacle (FX only) / Worldline / Propose / Apply; clearable worldline facts
 - **Strong Apply** — system chat note + sticky worldline block on the active character card
@@ -60,7 +60,7 @@ Optional VN-style unsolicited mail (Extensions drawer → **Character initiative
 
 ### Calls
 
-Presence-less calls live entirely in the handset: green ☎ → pick a contact → talk in the call screen. Replies use an independent call prompt (same generation backend as mail). Nothing is written to the main chat log; hang up with red ☎ or soft **End**.
+Presence-less calls live entirely in the handset: green ☎ → pick a contact → talk in the call screen. Generation mode can be **unique call prompt**, **main chat completion presets** (`generateQuietPrompt`), or **both** (presets + full call template). Optional **Call initiative** rings you with mail-style throttling. Hang up with red ☎ or soft **End**.
 
 Mail is stored in chat metadata. Wallpaper / sounds / reply prompt are extension settings.
 

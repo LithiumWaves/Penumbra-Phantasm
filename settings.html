@@ -366,6 +366,19 @@
                     </div>
                     <div class="pp-call-only">
                         <div class="pp-settings-block">
+                            <label for="pp_call_mode"><span>Call generation</span></label>
+                            <select id="pp_call_mode">
+                                <option value="unique">Unique call prompt only</option>
+                                <option value="main">Main chat completion presets</option>
+                                <option value="both">Both (presets + unique call prompt)</option>
+                            </select>
+                            <small>
+                                <strong>Unique</strong> uses the isolated mail backend + call template.
+                                <strong>Main</strong> uses <code>generateQuietPrompt</code> with your active chat presets.
+                                <strong>Both</strong> runs quiet generation with the full unique call template as the instruction.
+                            </small>
+                        </div>
+                        <div class="pp-settings-block">
                             <label for="pp_call_dial_ms"><span>Dial delay (ms)</span></label>
                             <input id="pp_call_dial_ms" type="number" class="text_pole" min="0" max="4000" step="50" style="max-width:6em;" />
                             <small>“Calling…” pause before connected.</small>
@@ -397,6 +410,124 @@
             </details>
 
             <details class="pp-drawer-cat">
+                <summary>Call initiative</summary>
+                <div class="pp-drawer-cat-body">
+                    <p class="pp-drawer-lead">
+                        Characters may ring you unsolicited (VN-style), with the same style of throttling as mail initiative.
+                        Off by default.
+                    </p>
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_call_initiative_enabled" type="checkbox" />
+                            <span>Enable call initiative</span>
+                        </label>
+                    </div>
+                    <div class="pp-call-initiative-only">
+                        <div class="pp-settings-block">
+                            <label for="pp_call_init_interval_min"><span>Check interval (seconds)</span></label>
+                            <div class="flex-container flexGap5" style="align-items:center;flex-wrap:wrap;">
+                                <input id="pp_call_init_interval_min" type="number" class="text_pole" min="30" max="7200" step="10" style="max-width:5.5em;" />
+                                <span>–</span>
+                                <input id="pp_call_init_interval_max" type="number" class="text_pole" min="30" max="14400" step="10" style="max-width:5.5em;" />
+                            </div>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_call_init_chance"><span>Chance per check (%)</span></label>
+                            <input id="pp_call_init_chance" type="number" class="text_pole" min="0" max="100" step="1" style="max-width:5em;" />
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_call_init_grace"><span>Startup grace (seconds)</span></label>
+                            <input id="pp_call_init_grace" type="number" class="text_pole" min="0" max="3600" step="5" style="max-width:5.5em;" />
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_call_init_cooldown"><span>Cooldown after ring (seconds)</span></label>
+                            <input id="pp_call_init_cooldown" type="number" class="text_pole" min="0" max="7200" step="10" style="max-width:5.5em;" />
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_call_init_max_hour"><span>Max per hour</span></label>
+                            <input id="pp_call_init_max_hour" type="number" class="text_pole" min="0" max="60" step="1" style="max-width:5em;" />
+                            <small>0 = unlimited.</small>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_call_init_max_day"><span>Max per day</span></label>
+                            <input id="pp_call_init_max_day" type="number" class="text_pole" min="0" max="200" step="1" style="max-width:5em;" />
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_call_init_ring_timeout"><span>Ring timeout (seconds)</span></label>
+                            <input id="pp_call_init_ring_timeout" type="number" class="text_pole" min="0" max="300" step="1" style="max-width:5em;" />
+                            <small>0 = ring until answered or declined.</small>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label>
+                                <input id="pp_call_init_idle" type="checkbox" />
+                                <span>Only when chat is idle</span>
+                            </label>
+                        </div>
+                        <div class="pp-settings-block pp-call-init-idle-only">
+                            <label for="pp_call_init_idle_sec"><span>Idle for (seconds)</span></label>
+                            <input id="pp_call_init_idle_sec" type="number" class="text_pole" min="0" max="3600" step="5" style="max-width:5.5em;" />
+                        </div>
+                        <div class="pp-settings-block">
+                            <label>
+                                <input id="pp_call_init_pause_gen" type="checkbox" />
+                                <span>Pause while generating</span>
+                            </label>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label>
+                                <input id="pp_call_init_pause_phone" type="checkbox" />
+                                <span>Pause while phone is open</span>
+                            </label>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label>
+                                <input id="pp_call_init_tab" type="checkbox" />
+                                <span>Require visible browser tab</span>
+                            </label>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label>
+                                <input id="pp_call_init_skip_busy" type="checkbox" />
+                                <span>Skip if already on a call</span>
+                            </label>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label>
+                                <input id="pp_call_init_auto_open" type="checkbox" />
+                                <span>Auto-open phone on incoming ring</span>
+                            </label>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label for="pp_call_init_contacts"><span>Who may call</span></label>
+                            <select id="pp_call_init_contacts">
+                                <option value="active">Active chat character only</option>
+                                <option value="weighted">Prefer active (group-aware)</option>
+                                <option value="all">Any chat contact (not PhoneWave)</option>
+                            </select>
+                        </div>
+                        <div class="pp-settings-block">
+                            <label>
+                                <input id="pp_call_init_quiet" type="checkbox" />
+                                <span>Quiet hours (local clock)</span>
+                            </label>
+                        </div>
+                        <div class="pp-settings-block pp-call-init-quiet-only">
+                            <label for="pp_call_init_quiet_start"><span>Quiet from → until (hour)</span></label>
+                            <div class="flex-container flexGap5" style="align-items:center;flex-wrap:wrap;">
+                                <input id="pp_call_init_quiet_start" type="number" class="text_pole" min="0" max="23" step="1" style="max-width:4em;" />
+                                <span>→</span>
+                                <input id="pp_call_init_quiet_end" type="number" class="text_pole" min="0" max="23" step="1" style="max-width:4em;" />
+                            </div>
+                        </div>
+                        <div class="pp-settings-block">
+                            <button id="pp_call_initiative_test" class="menu_button" type="button">Ring me now</button>
+                            <small>Bypasses chance / idle / grace / quiet hours.</small>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <details class="pp-drawer-cat">
                 <summary>D-Mail</summary>
                 <div class="pp-drawer-cat-body">
                     <div class="pp-settings-block">
@@ -408,6 +539,13 @@
                             Same as phone Settings → D-Mail → Worldline overlay.
                             Full tier controls (Spectacle / Propose / Apply) live on the handset.
                         </small>
+                    </div>
+                    <div class="pp-settings-block">
+                        <label>
+                            <input id="pp_dmail_sound" type="checkbox" />
+                            <span>Spectacle sound</span>
+                        </label>
+                        <small>Unmute divergence video when possible and play a synth bed (respects Sounds).</small>
                     </div>
                 </div>
             </details>
