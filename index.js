@@ -23,6 +23,7 @@ import {
 } from './lib/email.js';
 import { getActiveCharacterName } from './lib/store.js';
 import { ensureNotifyHost } from './lib/notify.js';
+import { updateWorldlinePrompt } from './lib/dmail.js';
 
 const LOG = `[${MODULE_NAME}]`;
 
@@ -34,6 +35,7 @@ function bindSettingsUi() {
     $('#pp_slash').prop('checked', s.enableSlashCommand);
     $('#pp_sound').prop('checked', s.soundEnabled);
     $('#pp_inject').prop('checked', s.injectPrompt);
+    $('#pp_inject_worldline').prop('checked', s.injectWorldline !== false);
     $('#pp_mail_memory_scope').val(s.mailMemoryScope === 'all' ? 'all' : 'speaker');
     $('#pp_mail_memory_max').val(s.mailMemoryMax ?? 6);
     $('#pp_mail_memory_preview').val(s.mailMemoryPreviewLength ?? 140);
@@ -128,6 +130,18 @@ async function loadSettingsPanel() {
     onToggle('injectPrompt', '#pp_inject', () => {
         syncInjectFields();
         updateMailPrompt();
+    });
+    onToggle('injectWorldline', '#pp_inject_worldline', (s) => {
+        if (s.injectWorldline === false) {
+            try {
+                const ctx = getContext();
+                ctx.setExtensionPrompt?.('phone_trigger_worldline', '', 1, 0);
+            } catch {
+                /* ignore */
+            }
+        } else {
+            updateWorldlinePrompt();
+        }
     });
     $('#pp_mail_memory_scope').on('change', () => {
         const s = getSettings();
@@ -430,10 +444,16 @@ function registerEvents() {
         updateFabVisibility();
         updateWandItem();
         updateMailPrompt();
+        if (getSettings().injectWorldline !== false) {
+            updateWorldlinePrompt();
+        }
     });
 
     eventSource.on(event_types.CHAT_CHANGED, () => {
         updateMailPrompt();
+        if (getSettings().injectWorldline !== false) {
+            updateWorldlinePrompt();
+        }
         refreshIfOpen();
     });
 
@@ -499,6 +519,9 @@ jQuery(async () => {
     registerSlashCommands();
     registerEvents();
     updateMailPrompt();
+    if (getSettings().injectWorldline !== false) {
+        updateWorldlinePrompt();
+    }
     updateWandItem();
 
     // Retry wand item — menu may mount late
@@ -512,4 +535,7 @@ export function onActivate() {
     initPhoneChrome();
     updateFabVisibility();
     updateMailPrompt();
+    if (getSettings().injectWorldline !== false) {
+        updateWorldlinePrompt();
+    }
 }

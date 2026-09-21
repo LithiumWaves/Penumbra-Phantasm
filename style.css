@@ -1246,3 +1246,196 @@ body:has(#pp-phone-root.pp-pos-left) .pp-notify-host {
     background: linear-gradient(90deg, #3a6ea5, #9ec4ff);
     transition: width 0.28s ease;
 }
+
+/* —— D-Mail / divergence sequence —— */
+.pp-dmail-hint {
+    margin: 0 0 8px;
+    padding: 6px 8px;
+    font: 500 10px/1.35 var(--pp-font);
+    color: #9ec4ff;
+    background: rgba(30, 80, 140, 0.22);
+    border-left: 2px solid var(--pp-accent, #5a9fd4);
+}
+
+.pp-dmail-hint strong {
+    font-weight: 700;
+    color: #d7e6ff;
+}
+
+.pp-dmail-fx {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    opacity: 0;
+    transition: opacity 0.28s ease;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.pp-dmail-fx.pp-dmail-on {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.pp-dmail-fx.pp-dmail-out {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.pp-dmail-fallback {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(ellipse at 50% 40%, rgba(40, 90, 120, 0.35), transparent 55%),
+        linear-gradient(180deg, #050a12, #0a1520 60%, #030608);
+    z-index: 2;
+}
+
+.pp-dmail-fallback:not([hidden]) {
+    display: flex;
+}
+
+.pp-dmail-fallback[hidden] {
+    display: none !important;
+}
+
+.pp-dmail-video {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+}
+
+.pp-dmail-meter {
+    text-align: center;
+    font-family: "Share Tech Mono", "Courier New", monospace;
+    color: #7fd4ff;
+    text-shadow: 0 0 12px rgba(80, 180, 255, 0.45);
+}
+
+.pp-dmail-meter-label {
+    letter-spacing: 0.35em;
+    font-size: 11px;
+    opacity: 0.75;
+    margin-bottom: 8px;
+}
+
+.pp-dmail-meter-value {
+    font-size: clamp(28px, 8vw, 52px);
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+}
+
+.pp-dmail-distort {
+    position: absolute;
+    inset: -8%;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 3;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent 0,
+            transparent 2px,
+            rgba(0, 255, 255, 0.03) 2px,
+            rgba(0, 255, 255, 0.03) 3px
+        );
+    mix-blend-mode: screen;
+}
+
+.pp-dmail-distort.pp-dmail-distort-on {
+    opacity: 1;
+    animation: pp-dmail-warp 0.85s ease-in forwards;
+}
+
+.pp-dmail-flash {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 4;
+    background: radial-gradient(circle at 50% 45%, rgba(200, 240, 255, 0.85), rgba(20, 40, 60, 0.2) 55%, #000 100%);
+}
+
+.pp-dmail-flash.pp-dmail-flash-on {
+    animation: pp-dmail-flash 0.9s ease-out forwards;
+}
+
+.pp-dmail-fx.pp-dmail-distort-on .pp-dmail-video,
+.pp-dmail-fx.pp-dmail-distort-on .pp-dmail-fallback {
+    animation: pp-dmail-glitch 0.85s steps(2, end) forwards;
+}
+
+@keyframes pp-dmail-warp {
+    0% {
+        opacity: 0.15;
+        transform: scaleY(1) skewX(0deg);
+        filter: none;
+    }
+    35% {
+        opacity: 0.9;
+        transform: scaleY(1.08) skewX(-4deg);
+        filter: url(#pp-none) contrast(1.4) saturate(1.6) hue-rotate(20deg);
+    }
+    55% {
+        transform: scaleY(0.92) skewX(6deg) translateX(-2%);
+        filter: contrast(1.8) saturate(0.4) hue-rotate(-25deg);
+    }
+    75% {
+        transform: scaleY(1.15) skewX(-8deg) translateX(3%);
+        filter: contrast(2) brightness(1.4);
+    }
+    100% {
+        opacity: 0;
+        transform: scaleY(1.4) skewX(12deg);
+        filter: brightness(2.2) contrast(0.3);
+    }
+}
+
+@keyframes pp-dmail-glitch {
+    0% {
+        transform: translate(0, 0) scale(1);
+        filter: none;
+        clip-path: inset(0 0 0 0);
+    }
+    20% {
+        transform: translate(-1.5%, 0.4%) scale(1.02);
+        filter: hue-rotate(40deg) contrast(1.3);
+        clip-path: inset(12% 0 40% 0);
+    }
+    40% {
+        transform: translate(2%, -0.6%) scale(0.98);
+        filter: hue-rotate(-50deg) saturate(2);
+        clip-path: inset(35% 0 10% 0);
+    }
+    60% {
+        transform: translate(-0.8%, 1%) skewX(-3deg);
+        filter: brightness(1.5) contrast(1.6);
+        clip-path: inset(0 0 0 0);
+    }
+    80% {
+        transform: scale(1.06) translate(0, -1%);
+        filter: brightness(1.8) blur(1px);
+    }
+    100% {
+        transform: scale(1.2);
+        filter: brightness(2.5) blur(4px);
+        opacity: 0.2;
+    }
+}
+
+@keyframes pp-dmail-flash {
+    0% { opacity: 0; }
+    25% { opacity: 0.55; }
+    55% { opacity: 0.95; }
+    100% { opacity: 0; }
+}
